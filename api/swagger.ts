@@ -44,7 +44,7 @@ const options: swaggerJSDoc.Options = {
         // Request bodies
         SignupRequest: {
           type: 'object',
-          required: ['email', 'password', 'name'],
+          required: ['email', 'password', 'full_name'],
           properties: {
             name: { type: 'string', example: 'John Doe' },
             email: { type: 'string', format: 'email', example: 'john@example.com' },
