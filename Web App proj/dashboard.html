@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareerMap Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet">
+</head>
+
+<body>
+
+<div class="dashboard">
+
+    <!-- Header -->
+
+    <header class="header">
+
+        <p id="greeting">Welcome Back 👋</p>
+
+        <h1>
+            Let's map your
+            <span>future</span>
+        </h1>
+
+        <small>
+            Discover paths. Build skills. Become more.
+        </small>
+
+    </header>
+
+
+    <!-- Search -->
+
+    <div class="search-box">
+
+        <i class="ri-search-line"></i>
+
+        <input
+            type="text"
+            placeholder="Search careers, skills or fields">
+
+    </div>
+
+
+    <!-- Continue Quiz -->
+
+    <section>
+
+        <div class="title">
+
+            <h3>Continue where you left off</h3>
+
+            <a href="#">View all</a>
+
+        </div>
+
+
+        <div class="quiz-card">
+
+            <div class="quiz-image">
+
+                <img src="image/File Image.png">
+
+            </div>
+
+            <div class="quiz-info">
+
+                <h2>Career Quiz</h2>
+
+                <p>20 Questions</p>
+
+                <div class="progress">
+
+                    <div class="progress-bar"></div>
+
+                </div>
+
+            </div>
+
+            <button class="continue-btn">
+
+                Continue
+
+            </button>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- Saved -->
+
+    <section>
+
+        <h3 class="saved-title">
+
+            Your Saved
+
+        </h3>
+
+        <div class="saved-grid">
+
+
+            <div class="saved-card careers">
+
+                <div class="bookmark">
+
+                    <i class="ri-bookmark-line"></i>
+
+                </div>
+
+                <h4>Saved Careers</h4>
+
+                <small>3 Careers Saved</small>
+
+                <img src="image/Compass.png">
+
+                <div class="arrow">
+
+                    <i class="ri-arrow-right-line"></i>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="saved-card mentors">
+
+                <div class="bookmark">
+
+                    <i class="ri-bookmark-line"></i>
+
+                </div>
+
+                <h4>Saved Mentors</h4>
+
+                <small>2 Mentors Saved</small>
+
+                <img src="image/cont.png">
+
+                <div class="arrow">
+
+                    <i class="ri-arrow-right-line"></i>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- Recommended Career -->
+
+    <section>
+
+        <h3 class="saved-title">
+
+            Recommended Career
+
+        </h3>
+
+
+        <div class="career-card">
+
+            <div class="career-icon">
+
+                <img src="images/chart.png">
+
+            </div>
+
+
+            <div class="career-info">
+
+                <h2>Data Science</h2>
+
+                <span>
+
+                    92% Match
+
+                </span>
+
+                <p>
+
+                    Analyze data.<br>
+
+                    Solve problems.<br>
+
+                    Build the future.
+
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+</div>
+
+
+
+<!-- Bottom Navigation -->
+
+<nav class="bottom-nav">
+
+<a href="home.html" class="active">
+
+<i class="ri-home-5-line"></i>
+
+<span>Home</span>
+
+</a>
+
+
+<a href="profile.html">
+
+<i class="ri-user-line"></i>
+
+<span>Profile</span>
+
+</a>
+
+
+<a href="mentor.html">
+
+<i class="ri-group-line"></i>
+
+<span>Mentors</span>
+
+</a>
+
+
+<a href="saved.html">
+
+<i class="ri-bookmark-line"></i>
+
+<span>Saved</span>
+
+</a>
+
+</nav>
+
+
+<script>
+    // ===========================
+// GREETING
+// ===========================
+
+const greeting = document.getElementById("greeting");
+
+const hour = new Date().getHours();
+
+let message = "";
+
+if (hour < 12) {
+    message = "Good Morning";
+} else if (hour < 18) {
+    message = "Good Afternoon";
+} else {
+    message = "Good Evening";
+}
+
+const user = JSON.parse(localStorage.getItem("user"));
+
+if (user) {
+    greeting.innerHTML = `${message}, ${user.fullName} 👋`;
+} else {
+    greeting.innerHTML = `${message} 👋`;
+}
+
+
+// ===========================
+// SEARCH
+// ===========================
+
+const searchInput = document.querySelector(".search-box input");
+
+searchInput.addEventListener("keyup", function () {
+
+    const value = this.value.toLowerCase();
+
+    document.querySelectorAll(".career-card").forEach(card => {
+
+        const text = card.innerText.toLowerCase();
+
+        if (text.includes(value)) {
+
+            card.style.display = "flex";
+
+        } else {
+
+            card.style.display = "none";
+
+        }
+
+    });
+
+});
+
+
+// ===========================
+// PROGRESS BAR
+// ===========================
+
+const progressBar = document.querySelector(".progress-bar");
+
+let progress = 0;
+
+const progressValue = 75;
+
+const interval = setInterval(() => {
+
+    if (progress >= progressValue) {
+
+        clearInterval(interval);
+
+    } else {
+
+        progress++;
+
+        progressBar.style.width = progress + "%";
+
+    }
+
+}, 20);
+
+
+// ===========================
+// CONTINUE QUIZ
+// ===========================
+
+const continueBtn = document.querySelector(".continue-btn");
+
+continueBtn.addEventListener("click", () => {
+
+    window.location.href = "quiz.html";
+
+});
+
+
+// ===========================
+// SAVED CARDS
+// ===========================
+
+document.querySelectorAll(".saved-card").forEach(card => {
+
+    card.addEventListener("click", () => {
+
+        if (card.classList.contains("careers")) {
+
+            window.location.href = "saved-careers.html";
+
+        }
+
+        if (card.classList.contains("mentors")) {
+
+            window.location.href = "saved.html";
+
+        }
+
+    });
+
+});
+
+
+// ===========================
+// RECOMMENDED CAREER
+// ===========================
+
+const careerCard = document.querySelector(".career-card");
+
+careerCard.addEventListener("click", () => {
+
+    window.location.href = "career-detail.html";
+
+});
+
+
+// ===========================
+// VIEW ALL
+// ===========================
+
+document.querySelector(".title a").addEventListener("click", () => {
+
+    window.location.href = "quiz.html";
+
+});
+
+
+// ===========================
+// BOTTOM NAVIGATION
+// ===========================
+
+const navLinks = document.querySelectorAll(".bottom-nav a");
+
+navLinks.forEach(link => {
+
+    link.addEventListener("click", function () {
+
+        navLinks.forEach(item => item.classList.remove("active"));
+
+        this.classList.add("active");
+
+    });
+
+});
+
+
+// ===========================
+// FADE IN ANIMATION
+// ===========================
+
+window.addEventListener("load", () => {
+
+    document.querySelector(".dashboard").style.opacity = "0";
+
+    document.querySelector(".dashboard").style.transform = "translateY(30px)";
+
+    setTimeout(() => {
+
+        document.querySelector(".dashboard").style.transition = ".6s";
+
+        document.querySelector(".dashboard").style.opacity = "1";
+
+        document.querySelector(".dashboard").style.transform = "translateY(0)";
+
+    }, 200);
+
+});
+
+
+// ===========================
+// LOAD USER PROFILE (API READY)
+// ===========================
+
+async function loadProfile() {
+
+    const token = localStorage.getItem("token");
+
+    if (!token) return;
+
+    try {
+
+        const response = await fetch("https://your-api.com/api/profile", {
+
+            headers: {
+
+                Authorization: `Bearer ${token}`
+
+            }
+
+        });
+
+        const data = await response.json();
+
+        greeting.innerHTML = `Welcome back ${data.fullName} 👋`;
+
+    } catch (error) {
+
+        console.log(error);
+
+    }
+
+}
+
+// loadProfile();
+
+
+// ===========================
+// LOAD QUIZ PROGRESS
+// ===========================
+
+async function loadQuizProgress() {
+
+    try {
+
+        const response = await fetch("https://your-api.com/api/quiz/progress");
+
+        const data = await response.json();
+
+        progressBar.style.width = data.progress + "%";
+
+    } catch (error) {
+
+        console.log(error);
+
+    }
+
+}
+
+// loadQuizProgress();
+
+
+// ===========================
+// LOAD SAVED CAREERS
+// ===========================
+
+async function loadSavedCareers() {
+
+    try {
+
+        const response = await fetch("https://your-api.com/api/saved-careers");
+
+        const data = await response.json();
+
+        console.log(data);
+
+    } catch (error) {
+
+        console.log(error);
+
+    }
+
+}
+
+// loadSavedCareers();
+
+
+// ===========================
+// LOGOUT
+// ===========================
+
+function logout() {
+
+    localStorage.removeItem("token");
+
+    localStorage.removeItem("user");
+
+    window.location.href = "Login.html";
+
+}
+</script>
+
+</body>
+</html>

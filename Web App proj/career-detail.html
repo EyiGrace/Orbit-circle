@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Detail</title>
+
+    <link rel="stylesheet" href="career-detail.css">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- Header -->
+    <header>
+
+        <button class="icon-btn back-btn">
+            <i class="fa-solid fa-chevron-left"></i>
+        </button>
+
+        <h2>Career Detail</h2>
+
+        <button class="icon-btn save-btn">
+            <i class="fa-regular fa-bookmark"></i>
+        </button>
+
+    </header>
+
+    <!-- Career Name -->
+    <section class="career-title">
+
+        <h1>Law</h1>
+
+        <span class="match">92% Match</span>
+
+    </section>
+
+    <!-- Hero -->
+    <section class="hero">
+
+        <div class="hero-text">
+
+            <p>
+                Use your analytical mind and communication
+                skills to advocate for justice and create
+                positive change to society.
+            </p>
+
+        </div>
+
+        <div class="hero-image">
+
+            <!-- Replace with your image -->
+            <img src="images/law.png" alt="Law">
+
+        </div>
+
+    </section>
+
+    <!-- About -->
+    <section>
+
+        <h3>About this career</h3>
+
+        <p class="about">
+
+            Lawyers advise and represent individuals,
+            businesses and organizations on legal matters.
+            They research the law, draft legal documents,
+            negotiate agreements and advocate for clients
+            in court and beyond.
+
+        </p>
+
+    </section>
+
+    <!-- Duties -->
+
+    <section>
+
+        <h3>What you'd do</h3>
+
+        <div class="duty">Analyze legal issues and facts</div>
+
+        <div class="duty">Research laws and cases</div>
+
+        <div class="duty">Draft legal documents</div>
+
+        <div class="duty">Negotiate agreements</div>
+
+        <div class="duty">Represent clients in court</div>
+
+        <div class="duty">Ensure justice and compliance</div>
+
+    </section>
+
+    <!-- Salary -->
+
+    <section>
+
+        <h3>Estimated annual salary</h3>
+
+        <div class="salary-container">
+
+            <div class="salary-card">
+
+                <small>Nigeria 🇳🇬</small>
+
+                <h2>₦3.5M - ₦12M</h2>
+
+                <span>(NGN)</span>
+
+            </div>
+
+            <div class="salary-card">
+
+                <small>International 🌍</small>
+
+                <h2>$60K - $150K+</h2>
+
+                <span>(USD)</span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- Button -->
+
+    <button class="mentor-btn">
+
+        Find a Mentor
+
+    </button>
+
+</div>
+
+<script>
+
+const backBtn = document.querySelector(".back-btn");
+const saveBtn = document.querySelector(".save-btn");
+const mentorBtn = document.querySelector(".mentor-btn");
+
+backBtn.addEventListener("click", () => {
+    window.history.back();
+});
+
+let saved = false;
+
+saveBtn.addEventListener("click", () => {
+
+    const icon = saveBtn.querySelector("i");
+
+    saved = !saved;
+
+    if(saved){
+
+        icon.classList.remove("fa-regular");
+        icon.classList.add("fa-solid");
+
+        saveBtn.style.background = "#7b3ff6";
+
+        alert("Career saved successfully!");
+
+    }else{
+
+        icon.classList.remove("fa-solid");
+        icon.classList.add("fa-regular");
+
+        saveBtn.style.background = "#32205f";
+
+        alert("Career removed from saved.");
+
+    }
+
+});
+
+mentorBtn.addEventListener("click", () => {
+
+    window.location.href = "recommended-mentors.html";
+
+});
+
+
+const duties = document.querySelectorAll(".duty");
+
+duties.forEach(card => {
+
+    card.addEventListener("mouseenter", () => {
+
+        card.style.transform = "translateY(-3px)";
+        card.style.background = "#7b3ff6";
+
+    });
+
+    card.addEventListener("mouseleave", () => {
+
+        card.style.transform = "translateY(0)";
+        card.style.background = "#24124f";
+
+    });
+
+});
+
+mentorBtn.addEventListener("click", function (e) {
+
+    const ripple = document.createElement("span");
+
+    ripple.classList.add("ripple");
+
+    ripple.style.left = `${e.offsetX}px`;
+    ripple.style.top = `${e.offsetY}px`;
+
+    this.appendChild(ripple);
+
+    setTimeout(() => {
+        ripple.remove();
+    }, 600);
+
+});
+</script>
+
+</body>
+</html>
