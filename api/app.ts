@@ -1,6 +1,10 @@
 // app.ts
 import express, { type ErrorRequestHandler } from 'express';
-import authRoutes from './routes/auth.routes';
+import authRoutes from './routes/auth.route';
+import careerRoutes from './routes/career.route';
+import mentorRoutes from './routes/mentor.route';
+import savedMentorRoutes from './routes/saved-mentor.route';
+import savedCareerRoutes from './routes/saved-career.route';
 import swaggerRouter from './swagger'; // <-- import
 import cors from 'cors';
 
@@ -17,6 +21,10 @@ app.use(express.json());
 
 // Mount routes
 app.use('/auth', authRoutes);
+app.use('/careers', careerRoutes);
+app.use('/mentors', mentorRoutes);
+app.use('/saved-mentors', savedMentorRoutes);
+app.use('/saved-careers', savedCareerRoutes);
 // app.get('/docs', (_req, res) => {
 //   res.redirect('/api-docs');
 // });
