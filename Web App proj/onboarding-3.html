@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CareerMap</title>
+
+    <link rel="stylesheet" href="onboarding-3.css">
+</head>
+<body>
+
+    <main>
+
+            <button class="skip-btn">
+                Skip
+            </button>
+
+        </header>
+
+        <!-- CONTENT -->
+        <section class="content-section">
+
+            <h1>
+                Get Career<br>
+                <span>recommendations</span><br>
+                you can trust.
+            </h1>
+
+            <p>
+                Personalized matches based on<br>
+                your interests and goals.
+            </p>
+
+
+            <!-- DOTS -->
+            <div class="dots">
+
+                <span class="dot"></span>
+
+                <span class="dot"></span>
+
+                <span class="dot active"></span>
+
+            </div>
+
+
+            <!-- START BUTTON -->
+            <button class="start-btn">
+                Let’s Get Started
+            </button>
+
+        </section>
+
+    </main>
+
+
+    <script>
+ const skipButton = document.querySelector(".skip-btn");
+const startButton = document.querySelector(".start-btn");
+
+
+// SKIP BUTTON
+skipButton.addEventListener("click", () => {
+
+    window.location.href = "welcome.html";
+
+});
+
+
+// GET STARTED BUTTON
+startButton.addEventListener("click", () => {
+
+    window.location.href = "welcome.html";
+
+});
+    </script>
+</body>
+</html>

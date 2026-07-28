@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Results</title>
+
+    <link rel="stylesheet" href="results.css">
+</head>
+<body>
+
+    <main >
+
+        <!-- Header -->
+        <header class="results-header">
+
+            <button class="icon-btn" id="backBtn">
+                ‹
+            </button>
+
+            <h1>Your Results</h1>
+
+            <button class="icon-btn" id="shareBtn">
+                ⇧
+            </button>
+
+        </header>
+
+
+        <!-- Intro -->
+        <section class="intro">
+
+            <p class="greeting">
+                Great job, Ngozi!
+            </p>
+
+            <h2>
+                Here are your<br>
+                top <span>career matches</span>
+            </h2>
+
+            <p class="intro-text">
+                Based on your personality,<br>
+                interests and quiz results
+            </p>
+
+        </section>
+
+        <!-- Top Career -->
+        <section class="top-career">
+
+            <div class="career-heading">
+
+                <div class="number">1</div>
+
+                <div class="career-icon">⚖️</div>
+
+                <h3>Law</h3>
+
+                <div class="arrow">›</div>
+
+            </div>
+
+            <div class="match-badge">
+                92% Match
+            </div>
+
+            <p>
+                You enjoy analyzing information,<br>
+                solving complex problems,<br>
+                communicating clearly and standing<br>
+                up for what is right
+            </p>
+
+        </section>
+
+
+        <!-- Other Careers -->
+        <section class="career-list">
+
+            <div class="career-card">
+
+                <div class="small-icon">▥</div>
+
+                <h3>Data Analyst</h3>
+
+                <span class="match blue">
+                    88% match
+                </span>
+
+                <span class="card-arrow">›</span>
+
+            </div>
+
+
+            <div class="career-card">
+
+                <div class="small-icon">♟</div>
+
+                <h3>Counselor</h3>
+
+                <span class="match blue">
+                    80% match
+                </span>
+
+                <span class="card-arrow">›</span>
+
+            </div>
+
+        </section>
+
+
+        <!-- Buttons -->
+        <button class="explore-btn" id="exploreBtn">
+            Explore My Matches
+            <span>→</span>
+        </button>
+
+        <button class="retake-btn" id="retakeBtn">
+            ↶ &nbsp; Retake Quiz
+        </button>
+
+    </main>
+
+    <script>
+        const backBtn = document.getElementById("backBtn");
+const shareBtn = document.getElementById("shareBtn");
+const exploreBtn = document.getElementById("exploreBtn");
+const retakeBtn = document.getElementById("retakeBtn");
+
+backBtn.addEventListener("click", () => {
+    window.history.back();
+});
+
+shareBtn.addEventListener("click", async () => {
+
+    if (navigator.share) {
+        await navigator.share({
+            title: "My CareerMap Results",
+            text: "Check out my career matches on CareerMap!"
+        });
+    } else {
+        alert("Share is not supported on this browser.");
+    }
+
+});
+
+exploreBtn.addEventListener("click", () => {
+    window.location.href = "matches.html";
+});
+
+retakeBtn.addEventListener("click", () => {
+    window.location.href = "quiz.html";
+});
+    </script>
+
+</body>
+</html>

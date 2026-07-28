@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareerMap</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main>
+        <!-- Logo -->
+        <section class="brand">
+
+            <div class="career-logo">
+            <img src="image/Logo.png">
+            </div>
+
+            <h1>Career<span>Map</span></h1>
+
+            <p>Clarity Before the Big Choice</p>
+        </section>
+        
+    </main>
+
+     <!-- Progress Bar -->
+        <div class="progress">
+            <div class="bar"></div>
+            <span id="percent">0%</span>
+        </div>
+    
+    <script>
+    const bar = document.querySelector(".bar");
+    const percent = document.getElementById("percent");
+    let loading = 0;
+    const timer = setInterval(() => {
+    loading++;
+    bar.style.width = loading + "%";
+    percent.innerHTML = loading + "%";
+    if (loading >= 100) {
+    clearInterval(timer);
+
+     // Redirect after a short delay
+    setTimeout(() => {
+    window.location.href = "career.html";
+    }, 700);
+
+    }
+    }, 40);
+   
+   
+    </script>
+</body>
+</html>

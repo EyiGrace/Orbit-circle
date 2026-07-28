@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Welcome to CareerMap</title>
+
+    <link rel="stylesheet" href="welcome.css">
+</head>
+<body>
+
+    <main >
+        
+        <!-- CONTENT -->
+        <section class="welcome-content">
+        <h2>Career<span>Map</span></h2>
+            <!-- LOGO -->
+            <img 
+                src="image/Logo.png"
+                alt="CareerMap Logo"
+                class="logo"
+            >
+            
+
+
+            <!-- WELCOME TEXT -->
+            <div class="welcome-text">
+
+                <h1>
+                    Welcome to<br>
+                    CareerMap 👋🏽
+                </h1>
+
+                <p>
+                    Let’s help you discover<br>
+                    what’s possible
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- BOTTOM ACTION AREA -->
+        <section class="action-area">
+
+            <button class="create-btn">
+                Create Account
+            </button>
+
+            <button class="login-btn">
+                Log In
+            </button>
+
+            <p class="terms">
+                By continuing, you agree to our<br>
+
+                <span>Terms of Service</span>
+                and
+                <span>Privacy Policy.</span>
+            </p>
+
+        </section>
+
+    </main>
+
+
+    <script>
+const createAccountBtn = document.querySelector(".create-btn");
+const loginBtn = document.querySelector(".login-btn");
+
+
+// CREATE ACCOUNT
+createAccountBtn.addEventListener("click", () => {
+
+    window.location.href = "signup.html";
+
+});
+
+
+// LOGIN
+loginBtn.addEventListener("click", () => {
+
+    window.location.href = "Login.html";
+
+});
+    </script>
+</body>
+</html>

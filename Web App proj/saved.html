@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Saved Careers</title>
+
+<link rel="stylesheet" href="saved.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+<header>
+
+<button class="back-btn">
+<i class="fa-solid fa-arrow-left"></i>
+</button>
+
+<h2>Saved</h2>
+
+</header>
+
+<!-- Tabs -->
+
+<div class="tabs">
+
+<button class="tab active">
+Saved Careers
+</button>
+
+<button class="tab">
+Saved Mentors
+</button>
+
+</div>
+
+<!-- Saved Career List -->
+
+<div class="career-list">
+
+<div class="career-card">
+
+<div class="career-icon">
+⚖️
+</div>
+
+<div class="career-info">
+
+<h3>Law</h3>
+
+<p>92% Match</p>
+
+</div>
+
+<i class="fa-regular fa-bookmark bookmark"></i>
+
+</div>
+
+<div class="career-card">
+
+<div class="career-icon">
+🩺
+</div>
+
+<div class="career-info">
+
+<h3>Medicine</h3>
+
+<p>89% Match</p>
+
+</div>
+
+<i class="fa-regular fa-bookmark bookmark"></i>
+
+</div>
+
+<div class="career-card">
+
+<div class="career-icon">
+🧠
+</div>
+
+<div class="career-info">
+
+<h3>Psychology</h3>
+
+<p>86% Match</p>
+
+</div>
+
+<i class="fa-regular fa-bookmark bookmark"></i>
+
+</div>
+
+<div class="career-card">
+
+<div class="career-icon">
+💻
+</div>
+
+<div class="career-info">
+
+<h3>Software Engineering</h3>
+
+<p>83% Match</p>
+
+</div>
+
+<i class="fa-regular fa-bookmark bookmark"></i>
+
+</div>
+
+</div>
+
+<!-- Bottom Navigation -->
+
+<nav>
+
+<a href="dashboard.html">
+
+<i class="fa-solid fa-house"></i>
+
+<span>Home</span>
+
+</a>
+
+<a href="profile.html">
+
+<i class="fa-regular fa-user"></i>
+
+<span>Profile</span>
+
+</a>
+
+<a href="mentors.html">
+
+<i class="fa-solid fa-users"></i>
+
+<span>Mentors</span>
+
+</a>
+
+<a href="#" class="active">
+
+<i class="fa-solid fa-bookmark"></i>
+
+<span>Saved</span>
+
+</a>
+
+</nav>
+
+</div>
+
+<script>
+    // Back Button
+document.querySelector(".back-btn").onclick = () => {
+    history.back();
+};
+
+// Switch Tabs
+const tabs = document.querySelectorAll(".tab");
+
+tabs.forEach((tab, index) => {
+
+    tab.onclick = () => {
+
+        tabs.forEach(btn => btn.classList.remove("active"));
+
+        tab.classList.add("active");
+
+        if(index === 1){
+
+            window.location.href = "saved-mentor.html";
+
+        }
+
+    };
+
+});
+
+// Bookmark Toggle
+const bookmarks = document.querySelectorAll(".bookmark");
+
+bookmarks.forEach(bookmark => {
+
+    bookmark.onclick = () => {
+
+        bookmark.classList.toggle("saved");
+
+        if(bookmark.classList.contains("saved")){
+
+            bookmark.classList.remove("fa-regular");
+
+            bookmark.classList.add("fa-solid");
+
+        }else{
+
+            bookmark.classList.remove("fa-solid");
+
+            bookmark.classList.add("fa-regular");
+
+        }
+
+    };
+
+});
+
+// Open Career Details
+document.querySelectorAll(".career-card").forEach(card => {
+
+    card.onclick = (e) => {
+
+        if(e.target.classList.contains("bookmark")) return;
+
+        window.location.href = "career-detail.html";
+
+    };
+
+});
+</script>
+
+</body>
+</html>

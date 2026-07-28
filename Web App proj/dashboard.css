@@ -1,0 +1,586 @@
+/* ==========================
+   GOOGLE FONT
+========================== */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+/* ==========================
+   RESET
+========================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    background:#08011d;
+    color:#fff;
+    display:flex;
+    justify-content:center;
+    min-height:100vh;
+}
+
+/* ==========================
+   DASHBOARD
+========================== */
+
+.dashboard{
+
+    width:100%;
+    max-width:430px;
+    min-height:100vh;
+
+    background:#12013f;
+
+    padding:30px 20px 120px;
+
+}
+
+/* ==========================
+   HEADER
+========================== */
+
+.header p{
+
+    color:#d7d7d7;
+    font-size:18px;
+    margin-bottom:8px;
+
+}
+
+.header h1{
+
+    font-size:45px;
+    line-height:1.2;
+
+    margin-bottom:10px;
+
+}
+
+.header span{
+
+    color:#9747ff;
+
+}
+
+.header small{
+
+    color:#c8c8c8;
+    font-size:17px;
+
+}
+
+/* ==========================
+   SEARCH
+========================== */
+
+.search-box{
+
+    margin:35px 0;
+
+    display:flex;
+
+    align-items:center;
+
+    background:#241052;
+
+    border:2px solid rgba(255,255,255,.08);
+
+    border-radius:20px;
+
+    padding:18px;
+
+}
+
+.search-box i{
+
+    font-size:24px;
+
+    color:#ffffff;
+
+    margin-right:15px;
+
+}
+
+.search-box input{
+
+    flex:1;
+
+    background:none;
+
+    border:none;
+
+    color:#fff;
+
+    outline:none;
+
+    font-size:17px;
+
+}
+
+.search-box input::placeholder{
+
+    color:#d7d7d7;
+
+}
+
+/* ==========================
+   SECTION TITLE
+========================== */
+
+.title{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:20px;
+
+}
+
+.title h3{
+
+    font-size:20px;
+
+}
+
+.title a{
+
+    text-decoration:none;
+
+    color:#9747ff;
+
+}
+
+/* ==========================
+   QUIZ CARD
+========================== */
+
+.quiz-card{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:18px;
+
+    background:#241052;
+
+    border-radius:22px;
+
+    padding:18px;
+
+    border:1px solid rgba(255,255,255,.08);
+
+}
+
+.quiz-image{
+
+    width:85px;
+    height:85px;
+
+    background:#371774;
+
+    border-radius:18px;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+}
+
+.quiz-image img{
+
+    width:60px;
+
+}
+
+.quiz-info{
+
+    flex:1;
+
+}
+
+.quiz-info h2{
+
+    margin-bottom:4px;
+
+}
+
+.quiz-info p{
+
+    color:#d6d6d6;
+
+    margin-bottom:12px;
+
+}
+
+.progress{
+
+    width:100%;
+
+    height:10px;
+
+    background:#4b3c77;
+
+    border-radius:20px;
+
+    overflow:hidden;
+
+}
+
+.progress-bar{
+
+    width:75%;
+
+    height:100%;
+
+    background:linear-gradient(90deg,#9747ff,#b26cff);
+
+}
+
+.continue-btn{
+
+    border:none;
+
+    background:#9747ff;
+
+    color:white;
+
+    padding:12px 22px;
+
+    border-radius:14px;
+
+    cursor:pointer;
+
+    transition:.3s;
+
+}
+
+.continue-btn:hover{
+
+    background:#7c2dff;
+
+    transform:scale(.95);
+
+}
+
+/* ==========================
+   SAVED SECTION
+========================== */
+
+.saved-title{
+
+    margin:35px 0 20px;
+
+    font-size:22px;
+
+}
+
+.saved-grid{
+
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:18px;
+
+}
+
+.saved-card{
+
+    background:#31106d;
+
+    border-radius:22px;
+
+    padding:18px;
+
+    position:relative;
+
+    transition:.35s;
+
+    cursor:pointer;
+
+}
+
+.saved-card:hover{
+
+    transform:translateY(-8px);
+
+}
+
+.saved-card h4{
+    margin-left:-8px;
+    margin-top:10px;
+
+}
+
+.saved-card small{
+    margin-left:-8px;
+    color:#d4d4d4;
+
+}
+
+.saved-card img{
+
+    width:110px;
+
+    display:block;
+
+    margin:20px auto;
+
+}
+
+.bookmark{
+
+    position:absolute;
+
+    right: 5px;
+
+    top:15px;
+
+    width:40px;
+
+    height:40px;
+
+    border-radius:12px;
+
+    background:#9b59ff;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+}
+
+.bookmark i{
+
+    font-size:20px;
+
+}
+
+.arrow{
+
+    display:flex;
+
+    justify-content:flex-end;
+
+}
+
+.arrow i{
+
+    font-size:26px;
+
+}
+
+/* ==========================
+   CAREER CARD
+========================== */
+
+.career-card{
+
+    display:flex;
+
+    gap:18px;
+
+    align-items:center;
+
+    background:#241052;
+
+    border-radius:22px;
+
+    padding:18px;
+
+    border:1px solid rgba(255,255,255,.08);
+
+}
+
+.career-icon{
+
+    width:90px;
+
+    height:90px;
+
+    background:#341c73;
+
+    border-radius:20px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+}
+
+.career-icon img{
+
+    width:55px;
+
+}
+
+.career-info h2{
+
+    margin-bottom:8px;
+
+}
+
+.career-info span{
+
+    display:inline-block;
+
+    padding:4px 12px;
+
+    border-radius:8px;
+
+    background:#0d5032;
+
+    color:#52ffbb;
+
+    margin-bottom:10px;
+
+}
+
+.career-info p{
+
+    color:#d5d5d5;
+
+}
+
+/* ==========================
+   BOTTOM NAV
+========================== */
+
+.bottom-nav{
+
+    position:fixed;
+
+    bottom:18px;
+
+    left:50%;
+
+    transform:translateX(-50%);
+
+    width:430px;
+
+    background:#241052;
+
+    border-radius:22px;
+
+    display:flex;
+
+    justify-content:space-around;
+
+    padding:18px;
+
+    border:1px solid rgba(255,255,255,.08);
+
+}
+
+.bottom-nav a{
+
+    color:#ffffff;
+
+    text-decoration:none;
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    gap:6px;
+
+    transition:.3s;
+
+}
+
+.bottom-nav a i{
+
+    font-size:24px;
+
+}
+
+.bottom-nav .active{
+
+    color:#9747ff;
+
+}
+
+/* ==========================
+   RESPONSIVE
+========================== */
+
+@media(max-width:768px){
+
+.dashboard{
+
+max-width:100%;
+
+padding:25px 18px 110px;
+
+}
+
+.bottom-nav{
+
+width:95%;
+
+}
+
+.header h1{
+
+font-size:35px;
+
+}
+
+.saved-grid{
+
+grid-template-columns:1fr;
+
+}
+
+}
+
+@media(max-width:480px){
+
+.quiz-card{
+
+flex-direction:column;
+
+text-align:center;
+
+}
+
+.continue-btn{
+
+width:100%;
+
+margin-top:15px;
+
+}
+
+.career-card{
+
+flex-direction:column;
+
+text-align:center;
+
+}
+
+.search-box{
+
+padding:15px;
+
+}
+
+}

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CareerMap</title>
+
+    <link rel="stylesheet" href="onboarding-2.css">
+</head>
+<body>
+
+    <main>
+
+        <!-- TOP SECTION -->
+            <button class="skip-btn">
+                Skip
+            </button>
+
+        </header>
+
+
+
+
+        <!-- BOTTOM CONTENT -->
+        <section class="content-section">
+
+            <h1>
+                Understand your<br>
+                <span>strengths.</span>
+            </h1>
+
+            <p>
+                Answer a few simple questions<br>
+                and we’ll do the rest.
+            </p>
+
+
+            <div class="bottom-controls">
+
+                <!-- SLIDER DOTS -->
+                <div class="dots">
+
+                    <span class="dot"></span>
+
+                    <span class="dot active"></span>
+
+                    <span class="dot"></span>
+
+                </div>
+
+
+                <!-- NEXT BUTTON -->
+                <button class="next-btn">
+                    <span>→</span>
+                </button>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script>
+    const nextButton = document.querySelector(".next-btn");
+    const skipButton = document.querySelector(".skip-btn");
+
+
+// NEXT BUTTON
+nextButton.addEventListener("click", () => {
+
+    window.location.href = "onboarding-3.html";
+
+});
+
+
+// SKIP BUTTON
+skipButton.addEventListener("click", () => {
+
+    window.location.href = "welcome.html";
+
+});
+    </script>
+</body>
+</html>

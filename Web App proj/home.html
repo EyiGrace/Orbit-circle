@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareerMap Dashboard</title>
+
+    <link rel="stylesheet" href="home.css">
+
+    <!-- Icons -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+
+    <main >
+
+        <!-- Top Content -->
+        <section class="top-content">
+
+            <h1>Good morning, Dimma 👋🏽</h1>
+            <p class="subtitle">Let’s map your future</p>
+
+ 
+
+            <!-- Text -->
+            <div class="career-text">
+                <h2>Get clarity into your future</h2>
+
+                <p>
+                    Take the career quiz to discover<br>
+                    paths that match your strengths<br>
+                    and interests.
+                </p>
+            </div>
+
+            <!-- Button -->
+            <button class="quiz-btn" id="quizBtn">
+                Start Career Quiz
+            </button>
+
+        </section>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+
+            <a href="home.html" >
+                <i class="fa-solid fa-house"></i>
+                <span>Home</span>
+            </a>
+
+            <a href="profile.html" >
+                <i class="fa-regular fa-user"></i>
+                <span>Profile</span>
+            </a>
+
+            <a href="mentor.html" >
+                <i class="fa-solid fa-users"></i>
+                <span>Mentors</span>
+            </a>
+
+            <a href="saved.html" >
+                <i class="fa-regular fa-bookmark"></i>
+                <span>Saved</span>
+            </a>
+
+        </nav>
+
+    </main>
+
+    <script>
+        const quizBtn = document.getElementById("quizBtn");
+
+quizBtn.addEventListener("click", () => {
+    window.location.href = "dashboard.html";
+});
+
+const navItems = document.querySelectorAll(".nav-item");
+
+navItems.forEach(item => {
+    item.addEventListener("click", function (e) {
+        e.preventDefault();
+
+        navItems.forEach(nav => {
+            nav.classList.remove("active");
+        });
+
+        this.classList.add("active");
+    });
+});
+
+    </script>
+</body>
+</html>
