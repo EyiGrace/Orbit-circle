@@ -226,7 +226,27 @@ localStorage.setItem("token",data.token);
 window.location.href="dashboard.html";
 
 });
+            
 }
+fetch("http://localhost:5000/api/auth/signup",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+fullname,
+
+email,
+
+password
+
+})
+
+});
 
 
     </script>
