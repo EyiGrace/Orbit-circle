@@ -6,7 +6,7 @@
 
 body {
     min-height: 100vh;
-    background: url('image/background12.png') no-repeat center center/cover;
+    background: var(--Deep-Purple, #0A003C);
     font-family: Arial, Helvetica, sans-serif;
     color: #fff;
     display: flex;
@@ -58,11 +58,17 @@ body {
     transform: translateX(-5px);
 }
 
+img{
+    width: 390px;
+    height: 515px;
+    aspect-ratio: 78/103;
+    position: absolute;
+}
 
 /* Analysis Text */
 .analysis {
     text-align: center;
-    margin-top: 250px;
+    margin-top: 450px;
 }
 
 .analysis h2 {
@@ -131,6 +137,9 @@ body {
         line-height: 45px;
         border-radius: 15px;
         margin-top: 20px;
+    }
+    img {
+        right: 5px;
     }
 
     .analysis{
