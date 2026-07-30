@@ -194,6 +194,14 @@ document.querySelector(".skip-btn").addEventListener("click",()=>{
     }
 
 });
+
+    fetch("http://localhost:5000/api/quiz")
+.then(res=>res.json())
+.then(data=>{
+
+console.log(data);
+
+});
 </script>
 
 </body>
