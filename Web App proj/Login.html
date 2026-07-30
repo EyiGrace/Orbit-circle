@@ -205,12 +205,39 @@ alert("Incorrect email or password.");
 });
 
 // Google button
+ const googleBtn = document.querySelector(".google-btn");
 
-document.querySelector(".google-btn").onclick=()=>{
+googleBtn.addEventListener("click", () => {
 
-window.location.href="https://accounts.google.com/";
+    google.accounts.id.prompt();
 
-};
+});
+ 
+ google.accounts.id.initialize({
+    client_id: "YOUR_GOOGLE_CLIENT_ID",
+    callback: handleCredentialResponse
+});
+
+function handleCredentialResponse(response){
+
+fetch("http://localhost:5000/api/auth/google",{
+    method:"POST",
+    headers:{
+        "Content-Type":"application/json"
+    },
+    body:JSON.stringify({
+        credential:response.credential
+    })
+})
+.then(res=>res.json())
+.then(data=>{
+
+localStorage.setItem("token",data.token);
+
+window.location.href="home.html";
+
+});
+}
 </script>
 
 </body>
