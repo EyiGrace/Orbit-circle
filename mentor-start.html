@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mentors | CareerMap</title>
+
+    <link rel="stylesheet" href="mentor-start.css">
+
+    <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+</head>
+<body>
+
+<div class="container">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+
+        <div class="logo">
+            <img src="image/Logo.png" alt="">
+            <span>CareerMap</span>
+        </div>
+
+        <nav>
+
+            <a href="dashboard.html">
+                <i class="fa-solid fa-house"></i>
+                Home
+            </a>
+
+            <a href="quiz.html">
+                <i class="fa-solid fa-file-circle-question"></i>
+                Quiz
+            </a>
+
+            <a href="profile.html">
+                <i class="fa-regular fa-user"></i>
+                Profile
+            </a>
+
+            <a href="mentor-start.html" class="active">
+                <i class="fa-solid fa-users"></i>
+                Mentors
+            </a>
+
+            <a href="saved.html">
+                <i class="fa-regular fa-bookmark"></i>
+                Saved
+            </a>
+
+        </nav>
+
+        <div class="user-card">
+
+            <img id="profileImage"
+                 src="images/default-profile.png"
+                 alt="Profile">
+
+            <div>
+
+                <h4 id="profileName">David Abel</h4>
+
+                <small>Student</small>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+    <!-- Main Content -->
+
+    <main class="main-content">
+
+        <header class="top-bar">
+
+            <div class="title">
+
+                <i class="fa-solid fa-users"></i>
+
+                <div>
+
+                    <h2>Mentors</h2>
+
+                    <p>
+                        Connect with experienced professionals
+                        and learn from their journey.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="header-right">
+
+                <div class="search-box">
+
+                    <i class="fa-solid fa-search"></i>
+
+                    <input
+                    type="text"
+                    placeholder="Search careers, skills or fields">
+
+                </div>
+
+                <button class="notify">
+
+                    <i class="fa-regular fa-bell"></i>
+
+                </button>
+
+            </div>
+
+        </header>
+
+        <!-- Hero Card -->
+
+        <section class="mentor-hero">
+
+            <img src="image/Background Image (13).png"
+                 alt="Mentors">
+
+            <h2>
+
+                We'll find the right mentors for you.
+
+            </h2>
+
+            <p>
+
+                Answer a few questions and we'll show
+                mentors personalized for your career goals.
+
+            </p>
+
+            <button id="startMentorBtn">
+
+                Get Started
+
+            </button>
+
+        </section>
+
+    </main>
+
+</div>
+
+<!-- Mobile Bottom Navigation -->
+
+<nav class="bottom-nav">
+
+    <a href="dashboard.html">
+
+        <i class="fa-solid fa-house"></i>
+
+        <span>Home</span>
+
+    </a>
+
+    <a href="quiz.html">
+
+        <i class="fa-solid fa-file-circle-question"></i>
+
+        <span>Quiz</span>
+
+    </a>
+
+    <a href="profile.html">
+
+        <i class="fa-regular fa-user"></i>
+
+        <span>Profile</span>
+
+    </a>
+
+    <a href="mentor-start.html" class="active">
+
+        <i class="fa-solid fa-users"></i>
+
+        <span>Mentors</span>
+
+    </a>
+
+    <a href="saved.html">
+
+        <i class="fa-regular fa-bookmark"></i>
+
+        <span>Saved</span>
+
+    </a>
+
+</nav>
+
+<script>
+
+// CareerMap Mentors Landing Page // 
+
+const API_URL = "http://localhost:5000/api";
+const token = localStorage.getItem("token");
+
+// Load Logged-in User // 
+
+async function loadUser() {
+
+    if (!token) return;
+
+    try {
+
+        const response = await fetch(`${API_URL}/users/profile`, {
+
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to load profile");
+        }
+
+        const user = await response.json();
+
+        document.getElementById("profileName").textContent =
+            user.fullname;
+
+        document.getElementById("profileImage").src =
+            user.profileImage
+            ? `http://localhost:5000/uploads/${user.profileImage}`
+            : "images/default-profile.png";
+
+    }
+
+    catch(error){
+
+        console.log(error);
+
+    }
+
+}
+
+// Get Started Button // 
+
+document.getElementById("startMentorBtn")
+.addEventListener("click", function(){
+
+    // Redirect to mentor recommendation page
+    window.location.href = "mentors.html";
+
+});
+
+// Search // 
+
+const searchInput = document.querySelector(".search-box input");
+
+searchInput.addEventListener("keyup", function(e){
+
+    if(e.key === "Enter"){
+
+        const keyword = this.value.trim();
+
+        if(keyword !== ""){
+
+            window.location.href =
+            `mentors.html?search=${encodeURIComponent(keyword)}`;
+
+        }
+
+    }
+
+});
+
+
+// Notification // 
+
+document.querySelector(".notify")
+.addEventListener("click", function(){
+
+    window.location.href = "notifications.html";
+
+});
+
+// Initialize Page // 
+
+window.addEventListener("DOMContentLoaded", () => {
+
+    loadUser();
+
+});
+</script>
+
+</body>
+</html>
