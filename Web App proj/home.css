@@ -8,14 +8,20 @@
 
 body {
     min-height: 100vh;
-    background: url('image/background11.png') no-repeat center center/cover;
+    background: var(--Deep-Purple, #0A003C);
     font-family: 'Inter', sans-serif;
     color: #ffffff;
     display: flex;
     justify-content: center;
+    
 }
 
-
+img{
+    width: 410px;
+    height: 410px;
+    aspect-ratio: 1/1;
+    margin-left: 70px;
+}
 
 /* Top Text */
 .top-content {
@@ -27,12 +33,14 @@ h1 {
     font-size: clamp(28px, 5vw, 42px);
     font-weight: 600;
     line-height: 1.2;
+    margin-left: 20px;
 }
 
 .subtitle {
     font-size: clamp(20px, 4vw, 30px);
     color: #ded9ff;
     margin-top: 18px;
+    margin-left: 25px;
 }
 
 
@@ -45,20 +53,21 @@ h1 {
 .career-text h2 {
     font-size: clamp(27px, 5vw, 40px);
     font-weight: 600;
-    line-height: 1.25;
+    line-height: 1;
 }
 
 .career-text p {
     font-size: clamp(18px, 3vw, 25px);
     color: #ded9f5;
-    line-height: 1.35;
+    line-height: 1;
     margin-top: 18px;
 }
 
 /* Button */
 .quiz-btn {
-    width: 100%;
+    width: 80%;
     border: none;
+    margin-left: 60px ;
     border-radius: 16px;
     background: linear-gradient(
         135deg,
@@ -68,7 +77,7 @@ h1 {
     color: white;
     font-size: clamp(20px, 4vw, 30px);
     padding: 24px 15px;
-    margin-top: 55px;
+    margin-top: 35px;
     cursor: pointer;
     transition: .3s ease;
     box-shadow: 0 8px 20px rgba(100, 30, 255, .25);
@@ -81,11 +90,9 @@ h1 {
 
 /* Bottom Navigation */
 .bottom-nav {
-    position: fixed;
-    bottom: 25px;
-    
+    margin-top: 30px;
     width: calc(100% - 60px);
-    max-width: 620px;
+    max-width: 690px;
     height: 105px;
     border-radius: 28px;
     background: rgba(38, 14, 111, .85);
@@ -95,6 +102,7 @@ h1 {
     justify-content: space-around;
     align-items: center;
     z-index: 10;
+    margin-left: 40px;
 }
 
 .nav-item {
@@ -129,44 +137,81 @@ h1 {
     color: #9d62ff;
 }
 
+@media (min-width: 700px) and (max-width: 800p) {
+    .subtitle{
+        margin-left: 130px;
+    }
+    h1{
+        margin-left: 130px;
+    }
+    img{
+        margin-top: 30px;
+        margin-left: 140px;
+    }
+    .career-text{
+        margin-top: 80px;
+        margin-left: 20px;
+
+    }
+    .quiz-btn{
+        margin-top: 280px;
+        margin-left: 65px;
+    }
+    .bottom-nav{
+        
+        width: 700px;
+        margin-top: 165px;
+
+    }
+}
+
 /* Responsive */
 @media (max-width: 600px) {
 
    
 
     h1 {
-        font-size: 27px;
+        font-size: Clamp(16px 5vw 24px);
         margin-top: 50px;
+        margin-left: 10px;
+    }
+    img{
+        width: 250px;
+        height: 250px;
+        margin-left: 30px;
     }
 
     .subtitle {
-        font-size: 20px;
+        font-size: Clamp(12px 3vw 16px);
+        margin-left: 10px;
     }
     .career-text{
         position: absolute;
-        margin-top: 250px;
+        margin-top: 20px;
+        margin-left: 10px;
     }
     .career-text h2 {
-        font-size: 27px;
+        font-size: Clamp(16px 5vw 24px);
         
     }
 
     .career-text p {
-        font-size: 18px;
+        font-size: Clamp(12px 3vw 16px);
     }
 
     .quiz-btn {
-        font-size: 21px;
+        font-size: Clamp(13px 4vw 21px);
         padding: 20px 10px;
-        margin-top: 430px;
-        position: absolute;
+        margin-top: 180px;
+        margin-left: 35px;
     }
 
     .bottom-nav {
-        width: calc(100% - 30px);
-        height: 85px;
-        bottom: 15px;
-        right: 15px;
+        width: 325px;
+        height: 62px;
+        top: 650px;
+        right: 18px;
+        position: absolute;
        
     }
 
@@ -178,5 +223,70 @@ h1 {
     .nav-item i {
         font-size: 22px;
         
+    }
+}
+
+@media (width: 414px) {
+    .subtitle{
+        margin-left: 30px;
+    }
+    h1{
+        margin-left: 30px;
+    }
+    img{
+        margin-top: 30px;
+        margin-left: 60px;
+    }
+    .career-text{
+        margin-top: 80px;
+        margin-left: 40px;
+
+    }
+    .quiz-btn{
+        margin-top: 280px;
+        margin-left: 45px;
+    }
+    .bottom-nav{
+        right: 15px;
+        width: 380px;
+        margin-top: 165px;
+
+    }
+}
+@media (width: 390px) {
+    .quiz-btn{
+        margin-top: 250px;
+    }
+    .bottom-nav{
+        right: 10px;
+        width: 370px;
+        margin-top: 125px;
+    }
+}
+@media (width: 430px) {
+
+    h1{
+        margin-left: 30px;
+    }
+    .subtitle{
+        margin-left: 30px;
+    }
+    img{
+        margin-top: 50px;
+        margin-left: 80px;
+
+    }
+
+    .quiz-btn{
+        margin-top: 300px;
+    }
+    .career-text{
+        margin-left: 30px;
+        margin-top: 150px;
+    }
+    .bottom-nav{
+        margin-top: 215px;
+        width: 410px;
+        right: 10px;
     }
 }

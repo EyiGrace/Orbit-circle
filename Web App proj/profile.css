@@ -58,6 +58,7 @@ cursor:pointer;
 
 .menu{
 margin-top:25px;
+
 }
 
 .menu a{
@@ -77,8 +78,9 @@ margin-right:15px;
 }
 
 nav{
-position:fixed;
-bottom:0;
+position:absolute;
+right:-7px;
+top:700px;
 width:360px;
 height:70px;
 background:#1b1048;
@@ -86,6 +88,7 @@ display:flex;
 justify-content:space-around;
 align-items:center;
 border-radius:20px;
+margin-right: 20px;
 }
 
 nav a{

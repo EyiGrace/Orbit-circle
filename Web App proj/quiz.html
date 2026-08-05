@@ -194,6 +194,32 @@ document.querySelector(".skip-btn").addEventListener("click",()=>{
     }
 
 });
+
+    fetch("http://localhost:5000/api/quiz")
+.then(res=>res.json())
+.then(data=>{
+
+console.log(data);
+
+});
+
+     fetch("http://localhost:5000/api/quiz/submit",{
+
+method:"POST",
+
+headers:{
+
+"Content-Type":"application/json"
+
+},
+
+body:JSON.stringify({
+
+answers
+
+})   
+
+});
 </script>
 
 </body>
