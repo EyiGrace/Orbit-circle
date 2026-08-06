@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Something Went Wrong | CareerMap</title>
+
+<link rel="stylesheet" href="something-went-wrong.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- Sidebar -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+
+            <img src="image/Logo.png" alt="Logo">
+
+            <h2>CareerMap</h2>
+
+        </div>
+
+        <nav>
+
+            <a href="dashboard.html">
+                <i class="fa-solid fa-house"></i>
+                Home
+            </a>
+
+            <a href="quiz.html">
+                <i class="fa-regular fa-file-lines"></i>
+                Quiz
+            </a>
+
+            <a href="profile.html">
+                <i class="fa-regular fa-user"></i>
+                Profile
+            </a>
+
+            <a href="mentors.html">
+                <i class="fa-solid fa-users"></i>
+                Mentors
+            </a>
+
+            <a href="saved.html">
+                <i class="fa-regular fa-bookmark"></i>
+                Saved
+            </a>
+
+        </nav>
+
+        <div class="profile">
+
+            <img
+            id="profileImage"
+            src="images/default-profile.png"
+            alt="Profile">
+
+            <div>
+
+                <h4 id="profileName">
+
+                    David Abel
+
+                </h4>
+
+                <small>Student</small>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+    <!-- Main Content -->
+
+    <main class="main">
+
+        <div class="error-card">
+
+            <img
+            src="image/Background image (17).png"
+            class="error-image"
+            alt="Something Went Wrong">
+
+            <h1>
+
+                Something went wrong
+
+            </h1>
+
+            <p>
+
+                We couldn't complete your request.
+                Please try again.
+
+            </p>
+
+            <button id="retryBtn">
+
+                Try Again
+
+            </button>
+
+            <a
+            href="javascript:history.back()"
+            class="back-link">
+
+                Go Back
+
+            </a>
+
+        </div>
+
+    </main>
+
+</div>
+
+<!-- Mobile Back Button -->
+
+<button class="mobile-back">
+
+    <i class="fa-solid fa-chevron-left"></i>
+
+</button>
+
+<script>
+
+// CareerMap Something Went Wrong Page // 
+
+const API_URL = "http://localhost:5000/api";
+const token = localStorage.getItem("token");
+
+// Load Logged-in User //
+
+async function loadUser() {
+
+    if (!token) return;
+
+    try {
+
+        const response = await fetch(`${API_URL}/users/profile`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error("Unable to load user profile.");
+        }
+
+        const user = await response.json();
+
+        document.getElementById("profileName").textContent =
+            user.fullname || "Guest User";
+
+        document.getElementById("profileImage").src =
+            user.profileImage
+                ? `http://localhost:5000/uploads/${user.profileImage}`
+                : "images/default-profile.png";
+
+    } catch (error) {
+
+        console.error("Profile Error:", error);
+
+    }
+
+}
+
+// Try Again Button // 
+
+const retryBtn = document.getElementById("retryBtn");
+
+retryBtn.addEventListener("click", () => {
+
+    retryBtn.disabled = true;
+    retryBtn.innerHTML = "Retrying...";
+
+    setTimeout(() => {
+
+        location.reload();
+
+    }, 1000);
+
+});
+
+// Mobile Back Button // 
+
+const mobileBack = document.querySelector(".mobile-back");
+
+if (mobileBack) {
+
+    mobileBack.addEventListener("click", () => {
+
+        history.back();
+
+    });
+
+}
+
+// Go Back Link // 
+
+const backLink = document.querySelector(".back-link");
+
+if (backLink) {
+
+    backLink.addEventListener("click", (e) => {
+
+        e.preventDefault();
+
+        history.back();
+
+    });
+
+}
+
+// Internet Check // 
+
+window.addEventListener("offline", () => {
+
+    console.log("Internet connection lost.");
+
+});
+
+window.addEventListener("online", () => {
+
+    console.log("Internet restored.");
+
+});
+
+
+// Optional Backend Health Check // 
+
+async function checkServer() {
+
+    try {
+
+        const response = await fetch(`${API_URL}/health`);
+
+        if (response.ok) {
+
+            console.log("Server is back online.");
+
+        }
+
+    } catch (error) {
+
+        console.log("Server unavailable.");
+
+    }
+
+}
+
+// Check every 15 seconds
+setInterval(checkServer, 15000);
+
+// Initialize // 
+
+window.addEventListener("DOMContentLoaded", () => {
+
+    loadUser();
+
+});
+</script>
+
+</body>
+</html>

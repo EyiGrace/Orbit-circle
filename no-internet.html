@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>No Internet | CareerMap</title>
+
+<link rel="stylesheet" href="no-internet.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- Sidebar -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+
+            <img src="image/Logo.png">
+
+            <h2>CareerMap</h2>
+
+        </div>
+
+        <nav>
+
+            <a href="dashboard.html">
+                <i class="fa-solid fa-house"></i>
+                Home
+            </a>
+
+            <a href="quiz.html">
+                <i class="fa-regular fa-file-lines"></i>
+                Quiz
+            </a>
+
+            <a href="profile.html">
+                <i class="fa-regular fa-user"></i>
+                Profile
+            </a>
+
+            <a href="mentors.html">
+                <i class="fa-solid fa-users"></i>
+                Mentors
+            </a>
+
+            <a href="saved.html">
+                <i class="fa-regular fa-bookmark"></i>
+                Saved
+            </a>
+
+        </nav>
+
+        <div class="profile">
+
+            <img
+            id="profileImage"
+            src="images/default-profile.png">
+
+            <div>
+
+                <h4 id="profileName">
+
+                    David Abel
+
+                </h4>
+
+                <small>Student</small>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+    <!-- Main -->
+
+    <main class="main">
+
+        <div class="internet-card">
+
+            <img
+            src="image/Background image (16).png"
+            class="internet-image"
+            alt="No Internet">
+
+            <h1>
+
+                No internet connection
+
+            </h1>
+
+            <p>
+
+                Please check your connection
+                and try again.
+
+            </p>
+
+            <button id="retryBtn">
+
+                Try Again
+
+            </button>
+
+            <a href="javascript:history.back()">
+
+                Go Back
+
+            </a>
+
+        </div>
+
+    </main>
+
+</div>
+
+<!-- Mobile Back Button -->
+
+<button class="mobile-back">
+
+<i class="fa-solid fa-chevron-left"></i>
+
+</button>
+
+<script>
+// CareerMap No Internet Page //
+
+const API_URL = "http://localhost:5000/api";
+const token = localStorage.getItem("token");
+
+
+// Load Logged-in User //
+
+async function loadUser() {
+
+    if (!token) return;
+
+    try {
+
+        const response = await fetch(`${API_URL}/users/profile`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error("Unable to load user");
+        }
+
+        const user = await response.json();
+
+        document.getElementById("profileName").textContent =
+            user.fullname;
+
+        document.getElementById("profileImage").src =
+            user.profileImage
+            ? `http://localhost:5000/uploads/${user.profileImage}`
+            : "images/default-profile.png";
+
+    } catch (error) {
+
+        console.log(error);
+
+    }
+
+}
+
+// Try Again Button // 
+
+const retryBtn = document.getElementById("retryBtn");
+
+retryBtn.addEventListener("click", () => {
+
+    if (navigator.onLine) {
+
+        location.reload();
+
+    } else {
+
+        alert("You're still offline. Please check your internet connection.");
+
+    }
+
+});
+
+// Go Back Button //
+
+const backBtn = document.querySelector(".mobile-back");
+
+if (backBtn) {
+
+    backBtn.addEventListener("click", () => {
+
+        history.back();
+
+    });
+
+}
+
+// Internet Status // 
+
+window.addEventListener("online", () => {
+
+    console.log("Internet Restored");
+
+    // Redirect to dashboard when internet is back
+    window.location.href = "dashboard.html";
+
+});
+
+window.addEventListener("offline", () => {
+
+    console.log("No Internet Connection");
+
+});
+
+// Connection Indicator // 
+
+function updateConnectionStatus() {
+
+    if (navigator.onLine) {
+
+        console.log("Connected");
+
+    } else {
+
+        console.log("Offline");
+
+    }
+
+}
+
+updateConnectionStatus();
+
+// Initialize // 
+
+window.addEventListener("DOMContentLoaded", () => {
+
+    loadUser();
+
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Error | CareerMap</title>
+
+    <link rel="stylesheet" href="server-error.css">
+
+    <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+</head>
+<body>
+
+<div class="container">
+
+    <!-- Sidebar (Desktop) -->
+    <aside class="sidebar">
+
+        <div class="logo">
+            <img src="image/Logo.png" alt="">
+            <span>CareerMap</span>
+        </div>
+
+        <nav>
+
+            <a href="dashboard.html">
+                <i class="fa-solid fa-house"></i>
+                Home
+            </a>
+
+            <a href="quiz.html">
+                <i class="fa-regular fa-file-lines"></i>
+                Quiz
+            </a>
+
+            <a href="profile.html">
+                <i class="fa-regular fa-user"></i>
+                Profile
+            </a>
+
+            <a href="mentors.html">
+                <i class="fa-solid fa-users"></i>
+                Mentors
+            </a>
+
+            <a href="saved.html">
+                <i class="fa-regular fa-bookmark"></i>
+                Saved
+            </a>
+
+        </nav>
+
+        <div class="user-card">
+
+            <img
+            id="profileImage"
+            src="images/default-profile.png"
+            alt="Profile">
+
+            <div>
+
+                <h4 id="profileName">
+                    David Abel
+                </h4>
+
+                <small>Student</small>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+    <!-- Main -->
+
+    <main class="main-content">
+
+        <div class="error-card">
+
+            <img
+            src="image/Background Image (15).png"
+            alt="Server Error"
+            class="error-image">
+
+            <h1>Server Error</h1>
+
+            <p>
+
+                Something went wrong on our end.
+                Please try again later.
+
+            </p>
+
+            <button id="retryBtn">
+
+                Try Again
+
+            </button>
+
+            <a href="javascript:history.back()"
+               class="back-link">
+
+               Go Back
+
+            </a>
+
+        </div>
+
+    </main>
+
+</div>
+
+<!-- Mobile Back Button -->
+
+<button class="mobile-back"
+onclick="history.back()">
+
+<i class="fa-solid fa-chevron-left"></i>
+
+</button>
+
+<script>
+
+// CareerMap Server Error Page //
+
+const API_URL = "http://localhost:5000/api";
+const token = localStorage.getItem("token");
+
+// Load User Profile // 
+
+async function loadUser() {
+
+    if (!token) return;
+
+    try {
+
+        const response = await fetch(`${API_URL}/users/profile`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error("Unable to load user.");
+        }
+
+        const user = await response.json();
+
+        document.getElementById("profileName").textContent =
+            user.fullname;
+
+        document.getElementById("profileImage").src =
+            user.profileImage
+            ? `http://localhost:5000/uploads/${user.profileImage}`
+            : "images/default-profile.png";
+
+    } catch (error) {
+        console.error(error);
+    }
+
+}
+
+// Try Again Button //
+
+document.getElementById("retryBtn")
+.addEventListener("click", () => {
+
+    // Reload current page
+    location.reload();
+
+});
+
+// =====================================
+// Optional Auto Retry
+// =====================================
+
+// Uncomment if you want automatic retry after 10 seconds
+
+/*
+setTimeout(() => {
+    location.reload();
+}, 10000);
+*/
+
+// =====================================
+// Check Server Connection
+// =====================================
+
+async function checkServer() {
+
+    try {
+
+        const response = await fetch(`${API_URL}/health`);
+
+        if (response.ok) {
+
+            // Redirect when server is back online
+            window.location.href = "dashboard.html";
+
+        }
+
+    } catch (error) {
+
+        console.log("Server is still offline.");
+
+    }
+
+}
+
+// Check every 15 seconds
+setInterval(checkServer, 15000);
+
+// Initialize //
+
+window.addEventListener("DOMContentLoaded", () => {
+
+    loadUser();
+
+}); 
+</script>
+
+</body>
+</html>
