@@ -38,7 +38,7 @@ export default function AuthLayout({
     <Wrapper>
       <PageContainer>
         {/* Mobile Header */}
-        <MobileHeader>
+        {/* <MobileHeader>
           {showBackButton ? (
             <BackButton onClick={handleBack}>
               <ArrowLeft size={20} color="#FFFFFF" />
@@ -47,7 +47,7 @@ export default function AuthLayout({
             <div style={{ width: 40 }} />
           )}
           <Logo />
-        </MobileHeader>
+        </MobileHeader> */}
 
         <MainContent>
           {children}

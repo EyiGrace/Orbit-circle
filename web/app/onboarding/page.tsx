@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import styled from "styled-components";
 import OnboardingStep1 from "@/components/onboarding/OnboardingStep1";
+import { getToken } from "@/hooks/auth.hook";
 import OnboardingStep2 from "@/components/onboarding/OnboardingStep2";
 import OnboardingStep3 from "@/components/onboarding/OnboardingStep3";
 import WelcomeScreen from "@/components/onboarding/WelcomeScreen";
@@ -34,6 +35,12 @@ type Step = 1 | 2 | 3 | 4;
 export default function OnboardingPage() {
   const [step, setStep] = useState<Step>(1);
   const router = useRouter();
+
+  useEffect(() => {
+    if (getToken()) {
+      router.replace("/home");
+    }
+  }, [router]);
 
   const goNext = () => setStep((s) => (s < 4 ? ((s + 1) as Step) : s));
 

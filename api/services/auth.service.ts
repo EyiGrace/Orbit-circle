@@ -2,6 +2,8 @@ import bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
 import jwt from 'jsonwebtoken';
 import User, { type UserAuthRecord, type UserRecord } from '../models/user.model';
+import { sendPasswordResetEmail } from './email.service';
+
 
 interface RegisterInput {
     email?: string;
@@ -213,9 +215,17 @@ class AuthService {
             };
         }
 
+        const token = this.generateResetToken(user);
+
+        await sendPasswordResetEmail({
+            to: user.email,
+            fullName: user.full_name ?? '',
+            token,
+        });
+
         return {
             message: 'Password reset link generated successfully.',
-            token: this.generateResetToken(user),
+            token,
         };
     }
 
@@ -241,7 +251,7 @@ class AuthService {
         const updatedUser = await User.updatePassword(payload.id, password_hash);
 
         if (!updatedUser) {
-            throw new Error('Failed to update password');
+            throw new Error('Failed to reset password');
         }
     }
 

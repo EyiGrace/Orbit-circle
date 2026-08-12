@@ -9,6 +9,7 @@ export interface QuizAttemptRecord {
   trait_scores_normalized: Record<string, number> | null;
   cluster_scores: Record<string, number> | null;
   asked_question_ids: number[];
+  pending_question_id: number | null;
   coverage: number | null;
   consistency: number | null;
   separation: number | null;
@@ -46,6 +47,18 @@ class QuizAttempt {
     return result.rows[0];
   }
 
+  // Persists which question the user is currently sitting on -- lets a
+  // refresh/lost-connection resume exactly where they left off, without
+  // relying on the frontend to remember anything. Pass null once the quiz
+  // is finalized (nothing left to resume).
+  static async setPendingQuestion(id: string, questionId: number | null) {
+    const result = await pool.query(
+      `UPDATE quiz_attempts SET pending_question_id = $1 WHERE id = $2 RETURNING *`,
+      [questionId, id]
+    );
+    return result.rows[0];
+  }
+
   static async updateConfidence(
     id: string,
     coverage: number,
@@ -72,7 +85,8 @@ class QuizAttempt {
       `UPDATE quiz_attempts
        SET completed_at = now(),
            trait_scores_normalized = $1,
-           final_recommended_careers = $2
+           final_recommended_careers = $2,
+           pending_question_id = NULL
        WHERE id = $3
        RETURNING *`,
       [JSON.stringify(traitScoresNormalized), finalRecommendedCareers, id]
@@ -81,7 +95,6 @@ class QuizAttempt {
   }
 
   static async findInProgressForUser(userId: string) {
-    // supports resuming a quiz if the user closes the tab mid-attempt
     const result = await pool.query(
       `SELECT * FROM quiz_attempts WHERE user_id = $1 AND completed_at IS NULL ORDER BY started_at DESC LIMIT 1`,
       [userId]

@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import LoginScreen, { type LoginValues } from "@/components/onboarding/LoginScreen";
 import { useLogin } from "@/hooks/auth.hook";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectUrl = searchParams.get("redirect") || "/dashboard";
   const loginMutation = useLogin();
   const [error, setError] = useState<string | undefined>();
 
@@ -14,7 +16,8 @@ export default function LoginPage() {
     setError(undefined);
     try {
       await loginMutation.mutateAsync({ email: values.email, password: values.password });
-      router.push("/home");
+      // Redirect to the original URL or home
+      router.push(decodeURIComponent(redirectUrl));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Incorrect password please try again.");
     }

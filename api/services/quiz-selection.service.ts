@@ -13,6 +13,7 @@ import {
   VALIDATION_TRIGGER_MAX_GAP
 } from './constants';
 
+
 class QuizSelectionService {
   // ---- shared helpers ----
 
@@ -112,6 +113,16 @@ class QuizSelectionService {
   static async pickNextQuestion(attemptId: string) {
     const attempt = await QuizAttempt.findById(attemptId);
     if (!attempt) throw new Error('Quiz attempt not found');
+
+    // Pool A is fixed and the same for every user -- it must be fully
+    // exhausted before adaptive selection ever runs. Without this check,
+    // the very first Pool A answer would jump straight to Pool B and skip
+    // the remaining 6 discovery questions entirely.
+    const poolAQuestions = await QuizQuestion.findPoolA(); // already ordered by id
+    const unaskedPoolA = poolAQuestions.filter(q => !attempt.asked_question_ids.includes(q.id));
+    if (unaskedPoolA.length > 0) {
+      return unaskedPoolA[0];
+    }
 
     const { top: contenders, matrix } = await this.getTopContenders(attempt.trait_scores_raw);
 

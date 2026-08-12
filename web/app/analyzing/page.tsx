@@ -1,38 +1,21 @@
-import { useEffect, useState } from "react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import styled, { keyframes } from "styled-components";
-import rocket from "@/assets/rocket.png";
-import { DashboardShell, Muted, dash } from "@/components/dashboard";
+'use client';
 
-export const Route = createFileRoute("/analyzing")({
-  head: () => ({
-    meta: [
-      { title: "Analyzing Your Answers — CareerMap" },
-      {
-        name: "description",
-        content:
-          "CareerMap is analyzing your quiz answers to build your personalized career matches.",
-      },
-      { property: "og:title", content: "Analyzing Your Answers — CareerMap" },
-      {
-        property: "og:description",
-        content:
-          "CareerMap is analyzing your quiz answers to build your personalized career matches.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
-  component: AnalyzingPage,
-});
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import styled, { keyframes } from "styled-components";
+import Image from "next/image";
+import { DashboardShell, Muted } from "@/components/dashboard";
+import colors from "@/lib/colors";
+
+
 
 const BackButton = styled.button`
   width: 54px;
   height: 54px;
   border-radius: 14px;
-  border: 1px solid ${dash.cardBorder};
+  border: 1px solid ${colors.cardBorder};
   background: rgba(119, 59, 236, 0.14);
-  color: ${dash.white};
+  color: ${colors.normalWhite};
   font-size: 22px;
   cursor: pointer;
 
@@ -68,7 +51,7 @@ const float = keyframes`
   50% { transform: translateY(-18px); }
 `;
 
-const Rocket = styled.img`
+const Rocket = styled(Image)`
   width: 420px;
   max-width: 70vw;
   height: auto;
@@ -101,7 +84,7 @@ const Fill = styled.div<{ $p: number }>`
   height: 100%;
   width: ${(p) => p.$p}%;
   border-radius: 999px;
-  background: ${dash.purple};
+  background: ${colors.buttonPurple};
   transition: width 0.4s ease;
 `;
 
@@ -111,7 +94,10 @@ const Percent = styled.span`
 `;
 
 function AnalyzingPage() {
-  const navigate = useNavigate();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const attemptId = searchParams.get("attemptId");
+
   const [percent, setPercent] = useState(15);
 
   useEffect(() => {
@@ -123,18 +109,23 @@ function AnalyzingPage() {
 
   useEffect(() => {
     if (percent < 100) return;
-    const id = setTimeout(() => navigate({ to: "/results" }), 700);
+    // NOTE: this is a cosmetic transition, not an actual wait on the backend --
+    // by the time the quiz page navigates here, submitAnswer() has already
+    // returned done:true with the final results. The results page re-fetches
+    // via useQuizResults(attemptId), which just reads the already-finalized
+    // row (cheap), so nothing real is "processing" during this delay.
+    const id = setTimeout(() => {
+      const query = attemptId ? `?attemptId=${attemptId}` : "";
+      router.push(`/result${query}`);
+    }, 700);
     return () => clearTimeout(id);
-  }, [percent, navigate]);
+  }, [percent, attemptId, router]);
 
   return (
     <DashboardShell
       heading={
         <HeadingRow>
-          <BackButton
-            aria-label="Go back"
-            onClick={() => navigate({ to: "/quiz" })}
-          >
+          <BackButton aria-label="Go back" onClick={() => router.push("/quiz")}>
             ‹
           </BackButton>
           <Title>Career Quiz</Title>
@@ -142,7 +133,7 @@ function AnalyzingPage() {
       }
     >
       <Center>
-        <Rocket src={rocket} alt="" width={1024} height={1024} />
+        <Rocket src="/image/rocket.png" alt="" width={700} height={700} priority />
         <Status>Analyzing your answers...</Status>
         <Muted>This will take only a few seconds</Muted>
         <BarRow>
@@ -155,3 +146,5 @@ function AnalyzingPage() {
     </DashboardShell>
   );
 }
+
+export default AnalyzingPage;

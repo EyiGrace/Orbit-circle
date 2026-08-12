@@ -64,13 +64,15 @@ export default function NewPasswordPage() {
             <InputIcon>
               <Lock size={18} />
             </InputIcon>
-            <StyledInput
+            <CustomStyledInput
               type={show ? 'text' : 'password'}
               placeholder="Enter new password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-            <Toggle onClick={() => setShow((s) => !s)}>{show ? 'Hide' : 'Show'}</Toggle>
+            <Toggle type="button" onClick={() => setShow((s) => !s)}>
+              {show ? 'Hide' : 'Show'}
+            </Toggle>
           </InputField>
         </InputGroup>
 
@@ -89,7 +91,7 @@ export default function NewPasswordPage() {
             <InputIcon>
               <Lock size={18} />
             </InputIcon>
-            <StyledInput
+            <CustomStyledInput
               type={show ? 'text' : 'password'}
               placeholder="Re-enter new password"
               value={confirm}
@@ -101,7 +103,10 @@ export default function NewPasswordPage() {
         {message ? <StatusText>{message}</StatusText> : null}
 
         <ButtonRow>
-          <PrimaryButton onClick={handleUpdate} disabled={password === '' || password !== confirm || resetMutation.isPending}>
+          <PrimaryButton
+            onClick={handleUpdate}
+            disabled={password === '' || password !== confirm || resetMutation.isPending}
+          >
             {resetMutation.isPending ? 'Updating...' : 'Update Password'}
           </PrimaryButton>
         </ButtonRow>
@@ -109,6 +114,8 @@ export default function NewPasswordPage() {
     </AuthLayout>
   )
 }
+
+/* ---------------- Styled Components ---------------- */
 
 const TextBlock = styled.div`
   display: flex;
@@ -175,23 +182,48 @@ const Label = styled.label`
 const InputField = styled.div`
   display: flex;
   align-items: center;
+  position: relative;
   width: 100%;
   height: 52px;
-  padding: 0 16px;
-  gap: 12px;
+  padding: 0 12px;
+  gap: 8px;
   border: 1px solid rgba(248, 250, 252, 0.2);
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.04);
+  box-sizing: border-box;
+`
+
+/* Wraps/overrides StyledInput so it takes up only available remaining space inside InputField */
+const CustomStyledInput = styled(StyledInput)`
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: ${colors.normalWhite};
+  font-size: 14px;
+  padding: 0;
+
+  &::placeholder {
+    color: rgba(248, 250, 252, 0.4);
+    font-size: 13.5px;
+  }
 `
 
 const Toggle = styled.button`
-  margin-left: auto;
+  flex-shrink: 0;
   background: transparent;
   border: none;
   color: ${colors.normalWhite};
   font-weight: 600;
-  font-size: 14px;
+  font-size: 13px;
   cursor: pointer;
+  padding: 4px 6px;
+  user-select: none;
+
+  &:hover {
+    color: ${colors.buttonPurple};
+  }
 `
 
 const StrengthRow = styled.div`
@@ -225,6 +257,10 @@ const StrengthLabel = styled.div`
 const ButtonRow = styled.div`
   width: 100%;
   margin-top: 8px;
+
+  button {
+    width: 100%;
+  }
 `
 
 const StatusText = styled.p`

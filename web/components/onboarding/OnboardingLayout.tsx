@@ -212,7 +212,6 @@ export default function OnboardingLayout({
     <Frame>
       {!hideMobileHeader && (
   <MobileHeader>
-    <Logo />
     {headerAction}
   </MobileHeader>
 )}

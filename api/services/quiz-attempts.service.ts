@@ -1,27 +1,37 @@
 // services/quiz/quizAttemptService.ts
 import QuizAttempt from '../models/quiz-attempts.model';
-import QuizQuestion from '../models/quiz-question.model';
+//import QuizQuestion from '../models/quiz-question.model';
 import QuizScoringService, { SubmitAnswerInput } from './quiz-scoring.service';
 import QuizSelectionService from './quiz-selection.service';
 import QuizConfidenceService from './quiz-confidence.service';
 import QuizResultsService from './quiz-result.service';
 
+
 class QuizAttemptService {
+  // Now returns a single question, same shape as every other step --
+  // no more bulk-returning all of Pool A. pickNextQuestion() (fixed in
+  // quizSelectionService.ts) knows to walk through Pool A first, then
+  // fall through to adaptive selection once it's exhausted. This means
+  // starting a brand-new attempt and resuming an in-progress one now go
+  // through the exact same code path.
   static async startAttempt(userId: string) {
-    // resume an in-progress attempt if one exists, rather than starting a duplicate
-    const existing = await QuizAttempt.findInProgressForUser(userId);
-    if (existing) return existing;
+    const attempt = await QuizAttempt.findInProgressForUser(userId) ?? (await QuizAttempt.create(userId));
 
-    return QuizAttempt.create(userId);
-  }
+    // if this attempt already has a pending question saved (e.g. resuming
+    // after a refresh), just return that instead of picking a new one
+    if (attempt.pending_question_id) {
+      return { attempt, question: null, resumedQuestionId: attempt.pending_question_id };
+    }
 
-  // returns the fixed Pool A discovery questions, in order -- same for every user
-  static async getDiscoveryQuestions() {
-    return QuizQuestion.findPoolA();
+    const question = await QuizSelectionService.pickNextQuestion(attempt.id);
+    if (question) {
+      await QuizAttempt.setPendingQuestion(attempt.id, question.id);
+    }
+    return { attempt, question, resumedQuestionId: null };
   }
 
   static async submitAnswer(input: SubmitAnswerInput) {
-    const { updatedScores } = await QuizScoringService.submitAnswer(input);
+    await QuizScoringService.submitAnswer(input);
     return this.afterScoringUpdate(input.attemptId);
   }
 
@@ -36,6 +46,7 @@ class QuizAttemptService {
     const shouldStop = await QuizConfidenceService.shouldStopQuiz(attemptId);
     if (shouldStop) {
       const results = await QuizResultsService.finalizeResults(attemptId);
+      // finalize() already clears pending_question_id -- nothing left to resume
       return { done: true, results };
     }
 
@@ -44,6 +55,8 @@ class QuizAttemptService {
       const results = await QuizResultsService.finalizeResults(attemptId);
       return { done: true, results };
     }
+
+    await QuizAttempt.setPendingQuestion(attemptId, nextQuestion.id);
 
     return { done: false, nextQuestion };
   }

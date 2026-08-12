@@ -4,6 +4,7 @@ const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3002';
 const AUTH_BASE = `${API_URL}/auth`;
 
 const TOKEN_KEY = 'careermap_token';
+const COOKIE_KEY = 'careermap_token';
 
 // ---- token storage --------------------------------------------------------
 // Guarded for Next.js SSR -- localStorage doesn't exist on the server, so
@@ -14,14 +15,29 @@ export function getToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
 }
 
+function setCookie(name: string, value: string, days = 7) {
+  if (typeof window === 'undefined') return;
+  const expires = new Date();
+  expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+  document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
+}
+
+function deleteCookie(name: string) {
+  if (typeof window === 'undefined') return;
+  document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;SameSite=Lax`;
+}
+
 function setToken(token: string) {
   if (typeof window === 'undefined') return;
   localStorage.setItem(TOKEN_KEY, token);
+  // Also set cookie for middleware to read
+  setCookie(COOKIE_KEY, token);
 }
 
 function clearToken() {
   if (typeof window === 'undefined') return;
   localStorage.removeItem(TOKEN_KEY);
+  deleteCookie(COOKIE_KEY);
 }
 
 // ---- shared authenticated fetch --------------------------------------------

@@ -1,173 +1,226 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import styled from 'styled-components';
-import { ChevronLeft } from 'lucide-react';
-import BottomNav from '@/components/BottomNav';
+import { useRouter, useSearchParams } from "next/navigation";
+import styled from "styled-components";
+import colors from "@/lib/colors";
+import { DashboardShell, Card, Muted } from "@/components/dashboard";
+import { useCareer } from "@/hooks/career.hook";
+import { MentorAvatar } from "@/lib/mentorAvatar";
 
-// ---------- Styled Components ----------
-const Container = styled.div`
-  width: 390px;
-  min-height: 100vh;
-  background: #140041;
-  color: #fff;
-  padding: 25px;
-  position: relative;
-  overflow: hidden;
-
-  @media (max-width: 430px) {
-    width: 100%;
-    padding: 20px;
-  }
-`;
-
-const Header = styled.header`
+const HeaderRow = styled.div`
   display: flex;
   align-items: center;
-  gap: 20px;
-  margin-bottom: 30px;
-
-  @media (max-width: 430px) {
-    h2 {
-      font-size: 28px;
-    }
-  }
-`;
-
-const BackButton = styled.button`
-  width: 55px;
-  height: 55px;
-  border: none;
-  border-radius: 15px;
-  background: #3b246d;
-  color: white;
-  font-size: 22px;
-  cursor: pointer;
-  transition: 0.3s;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  &:hover {
-    background: #7b3ff6;
-  }
-`;
-
-const Hero = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 20px;
-  margin-top: -30px;
-
-  img {
-    width: 280px;
-    max-width: 100%;
-    height: 150px;
-    animation: float 3s ease-in-out infinite;
-  }
-
-  @keyframes float {
-    0% {
-      transform: translateY(0px);
-    }
-    50% {
-      transform: translateY(-12px);
-    }
-    100% {
-      transform: translateY(0px);
-    }
-  }
-
-  @media (max-width: 430px) {
-    img {
-      width: 240px;
-    }
-  }
-`;
-
-const Content = styled.div`
-  text-align: center;
-
-  h1 {
-    font-size: 20px;
-    line-height: 1;
-    margin-bottom: 45px;
-
-    @media (max-width: 430px) {
-      font-size: 31px;
-    }
-  }
-
-  p {
-    color: #d4d4d4;
-    font-size: 17px;
-    line-height: 1;
-    margin-bottom: 75px;
-  }
-`;
-
-const StartButton = styled.button`
+  justify-content: space-between;
   width: 100%;
-  height: 55px;
-  border: none;
-  border-radius: 18px;
-  background: linear-gradient(90deg, #7a3df2, #9a52ff);
-  color: #fff;
-  font-size: 24px;
-  cursor: pointer;
-  transition: 0.3s;
-  box-shadow: 0 10px 25px rgba(146, 78, 255, 0.35);
-  margin-bottom: 40px;
-
-  &:hover {
-    transform: translateY(-3px);
-  }
-
-  @media (max-width: 430px) {
-    height: 60px;
-    font-size: 22px;
-  }
+  gap: 16px;
+  @media (max-width: 860px) { flex-direction: column; align-items: flex-start; }
 `;
 
-// ---------- Component ----------
+const Title = styled.h1`
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  @media (max-width: 860px) { font-size: 22px; }
+`;
+
+const SubText = styled(Muted)`
+  font-size: 14px;
+  margin-top: 4px;
+`;
+
+const MentorGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+  margin-top: 28px;
+  @media (max-width: 1100px) { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 720px) { grid-template-columns: 1fr; gap: 16px; margin-top: 16px; }
+`;
+
+const MentorCard = styled(Card)`
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  @media (max-width: 860px) { padding: 18px; }
+`;
+
+const ProfileRow = styled.div`
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+`;
+
+const ProfileInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const MentorName = styled.h3`
+  margin: 0 0 4px;
+  font-size: 19px;
+  font-weight: 700;
+  @media (max-width: 860px) { font-size: 17px; }
+`;
+
+const Role = styled(Muted)`
+  font-size: 13px;
+  line-height: 1.4;
+`;
+
+const Location = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 13px;
+  color: ${colors.muted};
+`;
+
+const TagsRow = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 18px 0;
+`;
+
+const Tag = styled.span`
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 12px;
+  color: ${colors.normalWhite};
+`;
+
+const Bio = styled(Muted)`
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 20px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+`;
+
+const CardFooter = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: 12px;
+`;
+
+const Rating = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  font-size: 15px;
+  span { color: #ffd15c; }
+  small { font-weight: 400; color: ${colors.muted}; font-size: 13px; }
+`;
+
+const ContactBtn = styled.button`
+  padding: 10px 22px;
+  border-radius: 10px;
+  border: none;
+  background: ${colors.buttonPurple};
+  color: ${colors.normalWhite};
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+  &:hover { opacity: 0.9; }
+  @media (max-width: 860px) { padding: 8px 18px; }
+`;
+
 export default function MentorPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const careerId = searchParams.get("careerId");
+
+  const { data, isLoading, isError } = useCareer(careerId);
+  const career = data?.career;
+  const mentors = career?.mentors ?? [];
+
+  if (!careerId) {
+    return (
+      <DashboardShell heading={<Title>Mentors</Title>}>
+        <Muted style={{ marginTop: 32 }}>
+          Mentors are shown per career. Open a career and tap &quot;Find a Mentor&quot; to see mentors linked to it.
+        </Muted>
+      </DashboardShell>
+    );
+  }
 
   return (
-    <Container>
-      <Header>
-        <BackButton onClick={() => router.back()}>
-          <ChevronLeft size={24} />
-        </BackButton>
-        <h2>Find a Mentor</h2>
-      </Header>
+    <DashboardShell
+      heading={
+        <HeaderRow>
+          <div>
+            <Title>Mentors{career ? ` for ${career.title}` : ""}</Title>
+            <SubText>Connect with professionals working in this field.</SubText>
+          </div>
+        </HeaderRow>
+      }
+    >
+      {isLoading && <Muted style={{ marginTop: 32 }}>Loading mentors...</Muted>}
+      {isError && <Muted style={{ marginTop: 32 }}>Couldn&apos;t load this career&apos;s mentors.</Muted>}
+      {!isLoading && !isError && mentors.length === 0 && (
+        <Muted style={{ marginTop: 32 }}>No mentors linked to this career yet.</Muted>
+      )}
 
-      <Hero>
-        <Image
-          src="/image/message.png"
-          alt="Mentor"
-          width={280}
-          height={150}
-          priority
-        />
-      </Hero>
+      <MentorGrid>
+        {mentors.map((mentor) => (
+          <MentorCard key={mentor.id} onClick={() => router.push(`/mentor/${mentor.id}`)}>
+            <div>
+              <ProfileRow>
+                <MentorAvatar name={mentor.full_name} photoUrl={mentor.photo_url} size={64} />
+                <ProfileInfo>
+                  <MentorName>{mentor.full_name}</MentorName>
+                  <Role>{mentor.headline}</Role>
+                </ProfileInfo>
+              </ProfileRow>
 
-      <Content>
-        <h1>We&apos;ll find the right mentors for you.</h1>
-        <p>
-          Answer a few questions and we &apos; ll
-          show you mentors personalized for
-          your career goals.
-        </p>
-      </Content>
+              {mentor.location && (
+                <Location>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 21s-6-5.333-6-10a6 6 0 0112 0c0 4.667-6 10-6 10z" stroke="currentColor" strokeWidth="2" />
+                    <circle cx="12" cy="11" r="2" fill="currentColor" />
+                  </svg>
+                  {mentor.location}
+                </Location>
+              )}
 
-      <StartButton onClick={() => router.push('/mentor-profile')}>
-        Get Started
-      </StartButton>
+              {mentor.specialty_tags && mentor.specialty_tags.length > 0 && (
+                <TagsRow>
+                  {mentor.specialty_tags.map((skill) => (
+                    <Tag key={skill}>{skill}</Tag>
+                  ))}
+                </TagsRow>
+              )}
 
-      <BottomNav />
-    </Container>
+              <Bio>{mentor.bio}</Bio>
+            </div>
+
+            <CardFooter>
+              <Rating>
+                <span>★</span> {mentor.rating_avg} <small>({mentor.rating_count})</small>
+              </Rating>
+              <ContactBtn
+                onClick={(e) => {
+                  e.stopPropagation();
+                  router.push(`/mentor/${mentor.id}`);
+                }}
+              >
+                Contact
+              </ContactBtn>
+            </CardFooter>
+          </MentorCard>
+        ))}
+      </MentorGrid>
+    </DashboardShell>
   );
 }

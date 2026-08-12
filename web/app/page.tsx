@@ -7,6 +7,7 @@ import fontsize from '@/lib/fontsize';
 import colors from '@/lib/colors';
 import Image from 'next/image';
 import styled from 'styled-components';
+import { getToken } from '@/hooks/auth.hook';
 
 
 // ---------- Component ----------
@@ -15,6 +16,11 @@ export default function SplashPage() {
   const router = useRouter();
 
   useEffect(() => {
+    if (getToken()) {
+      router.replace('/home');
+      return;
+    }
+
     const timer = setInterval(() => {
       setProgress((prev) => {
         const next = prev + 1;

@@ -24,7 +24,7 @@ export default function SignUpPage() {
         email: values.email,
         password: values.password,
       });
-      router.push("/home");
+      router.push("/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to create your account right now.");
     }

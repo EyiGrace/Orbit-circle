@@ -38,13 +38,12 @@ export default function ForgotPasswordPage() {
         </Description>
       </TextBlock>
 
-      {/* 📍 IMAGE GOES HERE ON MOBILE: Between Text and Form */}
       <MobileIllustration>
         <Image
           src="/image/Image0.png"
           alt="Lock"
-          width={240}
-          height={180}
+          width={220}
+          height={160}
           style={{ objectFit: 'contain' }}
           priority
         />
@@ -57,7 +56,7 @@ export default function ForgotPasswordPage() {
             <InputIcon>
               <Mail size={20} />
             </InputIcon>
-            <StyledInput
+            <CustomStyledInput
               type="email"
               placeholder="Enter your email address"
               value={email}
@@ -83,6 +82,8 @@ export default function ForgotPasswordPage() {
     </AuthLayout>
   )
 }
+
+/* ---------------- Styled Components ---------------- */
 
 const TextBlock = styled.div`
   display: flex;
@@ -124,7 +125,7 @@ export const MobileIllustration = styled.div`
     justify-content: center;
     align-items: center;
     width: 100%;
-    margin: 4px 0;
+    margin: 8px 0;
   }
 `
 
@@ -163,10 +164,31 @@ const InputField = styled.div`
   border: 1px solid rgba(248, 250, 252, 0.2);
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.04);
+  box-sizing: border-box;
+`
+
+const CustomStyledInput = styled(StyledInput)`
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: ${colors.normalWhite};
+  font-size: 14px;
+  padding: 0;
+
+  &::placeholder {
+    color: rgba(248, 250, 252, 0.4);
+    font-size: 13.5px;
+  }
 `
 
 const ButtonRow = styled.div`
   width: 100%;
+
+  button {
+    width: 100%;
+  }
 `
 
 const StatusText = styled.p`

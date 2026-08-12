@@ -6,6 +6,8 @@ import mentorRoutes from './routes/mentor.route';
 import savedMentorRoutes from './routes/saved-mentor.route';
 import savedCareerRoutes from './routes/saved-career.route';
 import quizRoutes from './routes/quiz.routes';
+import conversationRoutes from './routes/conversation.route';
+
 import swaggerRouter from './swagger'; // <-- import
 import cors from 'cors';
 
@@ -27,6 +29,7 @@ app.use('/mentors', mentorRoutes);
 app.use('/saved-mentors', savedMentorRoutes);
 app.use('/saved-careers', savedCareerRoutes);
 app.use('/quiz', quizRoutes);
+app.use('/conversations', conversationRoutes);
 // app.get('/docs', (_req, res) => {
 //   res.redirect('/api-docs');
 // });
