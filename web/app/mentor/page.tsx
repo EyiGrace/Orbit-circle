@@ -1,5 +1,6 @@
 'use client';
 
+import React, { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import styled from "styled-components";
 import colors from "@/lib/colors";
@@ -136,7 +137,7 @@ const ContactBtn = styled.button`
   @media (max-width: 860px) { padding: 8px 18px; }
 `;
 
-export default function MentorPage() {
+function MentorContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const careerId = searchParams.get("careerId");
@@ -222,5 +223,13 @@ export default function MentorPage() {
         ))}
       </MentorGrid>
     </DashboardShell>
+  );
+}
+
+export default function MentorPage() {
+  return (
+    <Suspense fallback={null}>
+      <MentorContent />
+    </Suspense>
   );
 }

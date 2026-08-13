@@ -192,6 +192,7 @@ export interface OnboardingLayoutProps {
   hideVisualOnMobile?: boolean;
   alignFooterBottom?: boolean; // New prop!
   hideMobileHeader?: boolean;
+  visualFooter?: React.ReactNode; 
 }
 
 export default function OnboardingLayout({

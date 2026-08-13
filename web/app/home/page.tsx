@@ -38,27 +38,7 @@ const Title = styled.h1`
   }
 `;
 
-const Search = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  width: 460px;
-  max-width: 100%;
-  padding: 18px 22px;
-  border-radius: 14px;
-  border: 1px solid ${colors.cardBorder};
-  background: rgba(35, 16, 92, 0.5);
-  color: ${colors.muted};
-  font-size: 18px;
-  margin: 40px 0 0 auto;
 
-  @media (max-width: 860px) {
-    width: 100%;
-    margin: 20px 0 0;
-    padding: 12px 16px;
-    font-size: 14px;
-  }
-`;
 
 const Grid = styled.div`
   display: grid;

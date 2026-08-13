@@ -16,6 +16,7 @@ const PUBLIC_ROUTES = [
   '/forgot-password',
   '/new-password',
   '/password-updated',
+  '/privacy-terms',
   '/onboarding',
   '/',
 ];

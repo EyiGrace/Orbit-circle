@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import LoginScreen, { type LoginValues } from "@/components/onboarding/LoginScreen";
 import { useLogin } from "@/hooks/auth.hook";
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectUrl = searchParams.get("redirect") || "/dashboard";
@@ -33,5 +33,13 @@ export default function LoginPage() {
       error={error}
       signUpHref="/signup"
     />
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginContent />
+    </Suspense>
   );
 }

@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import styled from 'styled-components';
 import { Home, User, Users, Bookmark } from 'lucide-react';
@@ -23,12 +24,13 @@ const Nav = styled.nav`
   }
 `;
 
-const NavLink = styled.a`
+// Type the custom prop and use transient prop ($active)
+const NavLink = styled.a<{ $active?: boolean }>`
   display: flex;
   flex-direction: column;
   align-items: center;
   text-decoration: none;
-  color: ${(props) => (props.active ? '#9d54ff' : '#fff')};
+  color: ${(props) => (props.$active ? '#9d54ff' : '#fff')};
   font-size: 14px;
   gap: 8px;
   cursor: pointer;
@@ -54,7 +56,7 @@ export default function BottomNav() {
   const pathname = usePathname();
   const router = useRouter();
 
-  const handleClick = (e, href) => {
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
     router.push(href);
   };
@@ -67,7 +69,7 @@ export default function BottomNav() {
           <NavLink
             key={href}
             href={href}
-            active={active}
+            $active={active}
             onClick={(e) => handleClick(e, href)}
           >
             <Icon size={24} />

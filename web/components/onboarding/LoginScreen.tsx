@@ -80,7 +80,7 @@ export default function LoginScreen({
       }
       visualFooter={
         <TermsText>
-          By continuing, you agree to our <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a>.
+          By continuing, you agree to our <a href="/privacy-terms">Terms of Service and Privacy Policy</a>.
         </TermsText>
       }
       footer={

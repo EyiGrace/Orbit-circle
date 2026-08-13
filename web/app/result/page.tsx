@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import styled from "styled-components";
 import Image from "next/image";
@@ -261,7 +261,7 @@ function AccordionResultCard({
   );
 }
 
-function ResultsPage() {
+function ResultsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const attemptId = searchParams.get("attemptId");
@@ -270,8 +270,6 @@ function ResultsPage() {
   const { data, isLoading, isError, error } = useQuizResults(attemptId);
   const results = data?.results ?? [];
 
-  // top match is expanded by default, matching the original design's "always
-  // expanded top card" -- everything else starts collapsed
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const currentExpandedId = expandedId ?? results[0]?.id ?? null;
 
@@ -351,4 +349,10 @@ function ResultsPage() {
   );
 }
 
-export default ResultsPage;
+export default function ResultsPage() {
+  return (
+    <Suspense fallback={null}>
+      <ResultsContent />
+    </Suspense>
+  );
+}

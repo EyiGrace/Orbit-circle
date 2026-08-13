@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import styled from 'styled-components'
 import AuthLayout from '@/components/auth/AuthLayout'
@@ -10,7 +10,7 @@ import { InputIcon, StyledInput } from '@/app/signup/page'
 import colors from '@/lib/colors'
 import { useResetPassword } from '@/hooks/auth.hook'
 
-export default function NewPasswordPage() {
+function NewPasswordContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const resetMutation = useResetPassword()
@@ -115,6 +115,14 @@ export default function NewPasswordPage() {
   )
 }
 
+export default function NewPasswordPage() {
+  return (
+    <Suspense fallback={null}>
+      <NewPasswordContent />
+    </Suspense>
+  )
+}
+
 /* ---------------- Styled Components ---------------- */
 
 const TextBlock = styled.div`
@@ -193,7 +201,6 @@ const InputField = styled.div`
   box-sizing: border-box;
 `
 
-/* Wraps/overrides StyledInput so it takes up only available remaining space inside InputField */
 const CustomStyledInput = styled(StyledInput)`
   flex: 1;
   min-width: 0;

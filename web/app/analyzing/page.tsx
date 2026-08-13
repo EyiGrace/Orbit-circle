@@ -1,13 +1,11 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import styled, { keyframes } from "styled-components";
 import Image from "next/image";
 import { DashboardShell, Muted } from "@/components/dashboard";
 import colors from "@/lib/colors";
-
-
 
 const BackButton = styled.button`
   width: 54px;
@@ -93,7 +91,7 @@ const Percent = styled.span`
   font-weight: 600;
 `;
 
-function AnalyzingPage() {
+function AnalyzingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const attemptId = searchParams.get("attemptId");
@@ -109,16 +107,11 @@ function AnalyzingPage() {
 
   useEffect(() => {
     if (percent < 100) return;
-    // NOTE: this is a cosmetic transition, not an actual wait on the backend --
-    // by the time the quiz page navigates here, submitAnswer() has already
-    // returned done:true with the final results. The results page re-fetches
-    // via useQuizResults(attemptId), which just reads the already-finalized
-    // row (cheap), so nothing real is "processing" during this delay.
     const id = setTimeout(() => {
       const query = attemptId ? `?attemptId=${attemptId}` : "";
       router.push(`/result${query}`);
     }, 700);
-    return () => clearTimeout(id);
+    return () => clearInterval(id);
   }, [percent, attemptId, router]);
 
   return (
@@ -147,4 +140,10 @@ function AnalyzingPage() {
   );
 }
 
-export default AnalyzingPage;
+export default function AnalyzingPage() {
+  return (
+    <Suspense fallback={null}>
+      <AnalyzingContent />
+    </Suspense>
+  );
+}

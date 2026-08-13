@@ -36,7 +36,7 @@ export default function WelcomeScreen({ onCreateAccount, onLogIn }: WelcomeScree
           <PrimaryButton onClick={onCreateAccount}>Create Account</PrimaryButton>
           <OutlineButton onClick={onLogIn}>Log In</OutlineButton>
           <TermsText>
-            By continuing, you agree to our <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a>.
+            By continuing, you agree to our <a href="/privacy-terms">Terms of Service and Privacy Policy</a>.
           </TermsText>
         </FooterGroup>
       }
