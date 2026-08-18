@@ -13,7 +13,7 @@ const sendPasswordResetEmail = async ({
 }) => {
   // Use environment variable for domain, or fallback to localhost during development
   const baseUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-  const resetLink = `${baseUrl}/reset-password?token=${encodeURIComponent(token)}`;
+  const resetLink = `${baseUrl}/new-password/reset-password?token=${encodeURIComponent(token)}`;
 
   await resend.emails.send({
     from: 'onboarding@resend.dev',

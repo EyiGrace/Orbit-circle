@@ -46,7 +46,7 @@ const STATE_CONFIGS: Record<StateType, StateConfig> = {
     showGoBack: true,
   },
   not_found: {
-    imageSrc: "/image/something wrong.png", // placeholder image as requested
+    imageSrc: "/image/gemini-svg.svg",
     title: "Page Not Found",
     titleColor: "#f87171",
     description: "The page you are looking for does not exist.",

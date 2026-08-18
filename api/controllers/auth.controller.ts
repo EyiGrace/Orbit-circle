@@ -2,7 +2,6 @@ import type { Request, Response } from 'express';
 import type { JwtPayload } from 'jsonwebtoken';
 import User from '../models/user.model';
 import AuthService from '../services/auth.service';
-//import { sendPasswordResetEmail } from '../services/email.service';
 
 interface AuthenticatedRequest extends Request {
     user?: JwtPayload & { id?: string };
@@ -46,6 +45,7 @@ const login = async (req: Request, res: Response) => {
             message: 'Login successful',
             user: result.user,
             token: result.token,
+            role: result.user.role
         });
     } catch (error) {
         const message = getErrorMessage(error);
@@ -80,6 +80,7 @@ const profile = async (req: AuthenticatedRequest, res: Response) => {
                 full_name: user.full_name,
                 email: user.email,
                 created_at: user.created_at,
+                role: user.role,
             },
         });
     } catch (error) {
@@ -149,22 +150,10 @@ const forgotPassword = async (req: Request, res: Response) => {
 
         const result = await AuthService.forgotPassword(email);
 
-        //await sendPasswordResetEmail({ to: email, firstName: result.user?.full_name || '', token: result.token });
-
-        if (result.token) {
-            console.log('Password reset token:', result.token);
-            console.log(`Reset link would be: http://localhost:3002/reset-password?token=${result.token}`);
-        }
-
         res.status(200).json({
             status: 'success',
             message: result.message,
-            debug: result.token
-                ? {
-                      token: result.token,
-                      resetLink: `http://localhost:3002/reset-password?token=${result.token}`,
-                  }
-                : undefined,
+
         });
     } catch (error) {
         console.error('Forgot password error:', error);

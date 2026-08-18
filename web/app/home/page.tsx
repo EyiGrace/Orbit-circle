@@ -521,7 +521,7 @@ function HomeDashboard() {
             <EmptyCtaButton type="button" onClick={() => router.push('/quiz')}>
               Start Career Quiz
             </EmptyCtaButton>
-            <EmptyHeroImg src="/image/dash-hero.jpg" alt="Explorer mapping career paths" />
+            <EmptyHeroImg src="/image/home-girl.png" alt="Explorer mapping career paths" />
           </EmptyHeroCard>
 
           <EmptySide>
@@ -567,7 +567,7 @@ function HomeDashboard() {
         <div>
           <SectionHead>Continue where you left off</SectionHead>
           <QuizCard>
-            <Thumb src="/image/icon-quizdoc.png" alt="" loading="lazy" width={512} height={512} />
+            <Thumb src="/image/file.png" alt="" loading="lazy" width={512} height={512} />
             <div style={{ flex: 1 }}>
               <h3 style={{ margin: 0, fontSize: 28 }}>Career Quiz</h3>
               <Muted style={{ fontSize: 18, marginTop: 4 }}>20 questions</Muted>
@@ -632,7 +632,7 @@ function HomeDashboard() {
                   </svg>
                 </BookmarkBadge>
               </TileHead>
-              <TileArt src="/image/icon-mentors.png" alt="" loading="lazy" width={512} height={512} />
+              <TileArt src="/image/saved-mentors.png" alt="" loading="lazy" width={512} height={512} />
               <RoundArrow type="button" aria-label="Open saved mentors" onClick={() => router.push('/saved')}>
                 <ArrowIcon />
               </RoundArrow>
@@ -651,7 +651,7 @@ function HomeDashboard() {
                   </svg>
                 </BookmarkBadge>
               </TileHead>
-              <TileArt src="/image/icon-compass.png" alt="" loading="lazy" width={512} height={512} />
+              <TileArt src="/image/compass.png" alt="" loading="lazy" width={512} height={512} />
               <RoundArrow type="button" aria-label="Open saved careers" onClick={() => router.push('/saved')}>
                 <ArrowIcon />
               </RoundArrow>

@@ -213,7 +213,7 @@ function MentorContent() {
               <ContactBtn
                 onClick={(e) => {
                   e.stopPropagation();
-                  router.push(`/mentor/${mentor.id}`);
+                  router.push(`/mentor-chat/${mentor.id}`);
                 }}
               >
                 Contact

@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import styled from "styled-components";
-import Image from "next/image";
+//import Image from "next/image";
 import colors from "@/lib/colors";
 import { DashboardShell, Card, Muted } from "@/components/dashboard";
 import { useCareer } from "@/hooks/career.hook";
@@ -301,9 +301,9 @@ export default function CareerDetailsPage() {
           <HeroTitle>{career.title}</HeroTitle>
           <HeroDesc>{career.why_this_summary}</HeroDesc>
         </HeroLeft>
-        <HeroImgWrapper>
+        {/* <HeroImgWrapper>
           <Image src="/image/icon-laptop.png" alt={career.title} fill style={{ objectFit: "contain" }} />
-        </HeroImgWrapper>
+        </HeroImgWrapper> */}
       </HeroCard>
 
       <ContentGrid>

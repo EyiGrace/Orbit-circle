@@ -264,7 +264,7 @@ export default function SavedPage() {
                 {/* NOTE: mentor_requests isn't built on the backend yet --
                     this button navigates but submitting will fail until
                     that endpoint exists */}
-                <ContactBtn onClick={() => router.push(`/mentors/${mentor.id}`)}>Contact</ContactBtn>
+                <ContactBtn onClick={() => router.push(`/mentor-chat/${mentor.id}`)}>Contact</ContactBtn>
               </MentorBottomRow>
             </MentorItemCard>
           ))}

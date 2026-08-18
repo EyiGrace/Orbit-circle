@@ -12,7 +12,12 @@ export const getCareers = async (req: Request, res: Response) => {
 
 export const getCareerById = async (req: Request, res: Response) => {
   try {
-    const career = await CareerService.getCareerWithMentors(req.params.id);
+    const { id } = req.params;
+    if (typeof id !== 'string') {
+      res.status(400).json({ message: 'Invalid career ID' });
+      return;
+    }
+    const career = await CareerService.getCareerWithMentors(id);
     res.status(200).json({ career });
   } catch (err: any) {
     res.status(404).json({ message: err.message });

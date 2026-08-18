@@ -17,6 +17,7 @@ import { pool } from '../config/db';
 import QuizAttemptService from '../services/quiz-attempts.service';
 import QuizAnswerOption from '../models/quiz-options.model';
 import QuizAttempt from '../models/quiz-attempts.model';
+import QuizQuestion from '../models/quiz-question.model';
 
 const PERSONAS: Record<string, string | null> = {
   random: null,
@@ -109,28 +110,20 @@ async function run() {
 
   await ensureTestUser();
 
-  const { attempt, discoveryQuestions } = await (async () => {
-    const a = await QuizAttemptService.startAttempt(TEST_USER_ID);
-    const dq = await QuizAttemptService.getDiscoveryQuestions();
-    return { attempt: a, discoveryQuestions: dq };
-  })();
-
-  console.log(`Started attempt ${attempt.id}`);
-  console.log(`Pool A discovery questions: ${discoveryQuestions.length}\n`);
-
-  let questionCount = 0;
-  let result: any = null;
-
-  // work through the fixed Pool A questions first
-  for (const q of discoveryQuestions) {
-    questionCount++;
-    console.log(`Q${questionCount} [${q.pool}/${q.question_type}]: ${q.question_text}`);
-    result = await answerQuestion(attempt.id, q, targetTrait);
-    if (result.done) break;
+  const startResult = await QuizAttemptService.startAttempt(TEST_USER_ID);
+  const attempt = startResult.attempt;
+  let firstQuestion = startResult.question;
+  if (!firstQuestion && startResult.resumedQuestionId) {
+    firstQuestion = await QuizQuestion.findById(startResult.resumedQuestionId);
   }
 
-  // then let the adaptive engine drive the rest
-  while (!result.done) {
+  console.log(`Started attempt ${attempt.id}\n`);
+
+  let questionCount = 0;
+  let result: any = { done: false, nextQuestion: firstQuestion };
+
+  // let the engine drive the questions (Pool A, then adaptive)
+  while (result.nextQuestion && !result.done) {
     questionCount++;
     const q = result.nextQuestion;
     console.log(`Q${questionCount} [${q.pool}/${q.question_type}]: ${q.question_text}`);

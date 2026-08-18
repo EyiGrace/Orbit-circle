@@ -163,9 +163,8 @@ class QuizSelectionService {
   // Thresholds are provisional -- see constants.ts.
   static shouldEnterValidation(attempt: any, contenders: { careerId: string; score: number }[]) {
     if (attempt.asked_question_ids.length < VALIDATION_TRIGGER_MIN_QUESTIONS) return false;
-    if (contenders.length < 2) return false;
     const [first, second] = contenders;
-    if (first.score === 0) return false; // no real signal yet
+    if (!first || !second || first.score === 0) return false; // no real signal yet
     const gapPercent = ((first.score - second.score) / first.score) * 100;
     return gapPercent <= VALIDATION_TRIGGER_MAX_GAP;
   }

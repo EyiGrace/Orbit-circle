@@ -2,6 +2,7 @@
 import express from 'express';
 import authController from '../controllers/auth.controller';
 import authMiddleware from '../middleware/auth.middleware';
+import limiter from '../middleware/rateLimiter.middleware';
 
 const router = express.Router();
 

@@ -9,6 +9,7 @@ interface RegisterInput {
     email?: string;
     password?: string;
     full_name?: string;
+    role?: 'student' | 'mentor';
 }
 
 interface AuthResult {
@@ -44,6 +45,7 @@ class AuthService {
             full_name: user.full_name,
             email: user.email,
             created_at: user.created_at,
+            role: user.role, 
         };
     }
 
@@ -73,6 +75,8 @@ class AuthService {
     static generateToken(payload: object, expiresIn: jwt.SignOptions['expiresIn'] = '7d'): string {
         return jwt.sign(payload, this.getJwtSecret(), { expiresIn });
     }
+
+    
 
     // Verify JWT token
     static verifyToken(token: string): string | jwt.JwtPayload {
@@ -132,6 +136,7 @@ class AuthService {
 
     static async register(data: RegisterInput): Promise<AuthResult > {
         const { email, password, full_name } = this.validateRegistrationInput(data);
+        const role = data.role || 'student';
 
         const existingUser = await User.findByEmail(email);
         if (existingUser) {
@@ -140,8 +145,8 @@ class AuthService {
 
         const password_hash = await this.hashPassword(password);
         const id = await this.generateUniqueUserId();
-        const user = await User.create({ id, full_name, email, password_hash });
-        const token = this.generateToken({ id: user.id, email: user.email });
+        const user = await User.create({ id, full_name, email, password_hash, role });
+        const token = this.generateToken({ id: user.id, email: user.email, role: user.role });
 
         return {
             user: this.sanitizeUser(user),
@@ -168,7 +173,7 @@ class AuthService {
 
         return {
             user: this.sanitizeUser(user),
-            token: this.generateToken({ id: user.id, email: user.email }),
+            token: this.generateToken({ id: user.id, email: user.email, role: user.role  }),
         };
     }
 

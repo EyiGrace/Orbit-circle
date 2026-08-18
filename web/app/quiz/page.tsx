@@ -426,7 +426,7 @@ function QuizPage() {
       heading={
         <HeadingRow>
           <HeadIcon>
-            <Image src="/image/icon-quizdoc.png" alt="" width={36} height={36} />
+            <Image src="/image/file.png" alt="" width={36} height={36} />
           </HeadIcon>
           <div>
             <Title>Career Quiz</Title>
@@ -463,7 +463,7 @@ function QuizPage() {
           <Question>{displayedQuestion.question_text}</Question>
 
           {displayedQuestion.question_type === "single_choice" ||
-          displayedQuestion.question_type === "scenario" ? (
+            displayedQuestion.question_type === "scenario" ? (
             <Options>
               {displayedQuestion.options?.map((opt) => {
                 const selected = viewingPast
@@ -597,7 +597,7 @@ function QuizPage() {
           </Card>
 
           <NoteCard>
-            <NoteImg src="/image/icon-quizdoc.png" alt="" width={120} height={120} />
+            <NoteImg src="/image/file.png" alt="" width={120} height={120} />
             <SideTitle>
               There are no right or <Accent>wrong</Accent> answers.
             </SideTitle>

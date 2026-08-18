@@ -38,17 +38,24 @@ const Aside = styled.aside`
   }
 `;
 
-const MobileBrand = styled.div`
+const MobileHeader = styled.div`
   display: none;
 
   @media (max-width: 860px) {
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-weight: 700;
-    font-size: 20px;
-    margin-bottom: 16px;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 20px;
   }
+`;
+
+const MobileBrand = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 20px;
 `;
 
 const BottomNav = styled.nav`
@@ -145,19 +152,28 @@ const Main = styled.main`
 `;
 
 const TopBar = styled.header`
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 
   @media (min-width: 861px) {
-    display: flex;
-    flex-wrap: wrap;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
   }
 `;
 
-const User = styled.div`
+const DesktopHeaderRight = styled.div`
+  display: flex;
+  align-items: center;
+
+  @media (max-width: 860px) {
+    display: none;
+  }
+`;
+
+const UserActions = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
@@ -165,8 +181,12 @@ const User = styled.div`
   font-weight: 600;
 
   @media (max-width: 860px) {
-    font-size: 0;
-    gap: 8px;
+    gap: 10px;
+
+    /* Hide full username on mobile so only icon, avatar, logout, or action buttons display */
+    .user-name-text {
+      display: none;
+    }
   }
 `;
 
@@ -206,7 +226,7 @@ export const Muted = styled.p`
   color: ${colors.muted};
 `;
 
-const LogoutButton = styled.button`
+export const LogoutButton = styled.button`
   width: 100%;
   border: none;
   border-radius: 14px;
@@ -230,11 +250,12 @@ const MobileLogoutIconButton = styled.button`
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.2);
     border: none;
-    border-radius: 50%;
-    width: 36px;
-    height: 36px;
+    border-radius: 5px;
+    font-size: 10px;
+    width: 50px;
+    height: 30px;
     color: ${colors.normalWhite};
     cursor: pointer;
 
@@ -396,6 +417,17 @@ export function DashboardShell({
     };
   }, [data, isError, isLoading]);
 
+  const defaultUserActions = (
+    <UserActions>
+      <BellIcon />
+      <Avatar>{userValue.initials}</Avatar>
+      <span className="user-name-text">{userValue.userName}</span>
+      <MobileLogoutIconButton type="button" title="Logout" onClick={handleLogout}>
+        Log out
+      </MobileLogoutIconButton>
+    </UserActions>
+  );
+
   return (
     <DashboardUserContext.Provider value={userValue}>
       <Shell>
@@ -419,26 +451,28 @@ export function DashboardShell({
         </Aside>
 
         <Main>
-          <MobileBrand>
-            <BrandLogo src="/image/Logo.png" alt="CareerMap logo" width={30} height={30} priority />
-            <span>
-              Career<Accent>Map</Accent>
-            </span>
-          </MobileBrand>
+          {/* Mobile-only header row that combines Logo with Action buttons */}
+          <MobileHeader>
+            <MobileBrand>
+              <BrandLogo src="/image/Logo.png" alt="CareerMap logo" width={30} height={30} priority />
+              <span>
+                Career<Accent>Map</Accent>
+              </span>
+            </MobileBrand>
 
+            <div>{topRight ?? defaultUserActions}</div>
+          </MobileHeader>
+
+          {/* Title / Welcome Heading in its own block below the header row */}
           <TopBar>
             <div style={{ minWidth: 0 }}>{heading}</div>
-            {topRight ?? (
-              <User>
-                <BellIcon />
-                <Avatar>{userValue.initials}</Avatar>
-                {userValue.userName}
-                <MobileLogoutIconButton type="button" title="Logout" onClick={handleLogout}>
-                  <LogoutIcon />
-                </MobileLogoutIconButton>
-              </User>
-            )}
+
+            {/* Desktop right action section */}
+            <DesktopHeaderRight>
+              {topRight ?? defaultUserActions}
+            </DesktopHeaderRight>
           </TopBar>
+
           {children}
         </Main>
 

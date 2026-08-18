@@ -7,6 +7,7 @@ import savedMentorRoutes from './routes/saved-mentor.route';
 import savedCareerRoutes from './routes/saved-career.route';
 import quizRoutes from './routes/quiz.routes';
 import conversationRoutes from './routes/conversation.route';
+import googleAuthRouter from './routes/auth.google.route';
 
 import swaggerRouter from './swagger'; // <-- import
 import cors from 'cors';
@@ -24,6 +25,7 @@ app.use(express.json());
 
 // Mount routes
 app.use('/auth', authRoutes);
+app.use('/auth/google', googleAuthRouter);
 app.use('/careers', careerRoutes);
 app.use('/mentors', mentorRoutes);
 app.use('/saved-mentors', savedMentorRoutes);

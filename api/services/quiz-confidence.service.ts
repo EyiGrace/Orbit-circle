@@ -1,8 +1,8 @@
 // services/quiz/quizConfidenceService.ts
 import QuizAttempt from '../models/quiz-attempts.model';
-import QuizQuestion from '../models/quiz-question.model';
+//import QuizQuestion from '../models/quiz-question.model';
 import QuizResponse from '../models/quiz-response.model';
-import CareerTraitWeight from '../models/career-trait-weights.model';
+//import CareerTraitWeight from '../models/career-trait-weights.model';
 import QuizSelectionService from './quiz-selection.service';
 import {
   ASSUMED_MAX_POINTS_PER_TRAIT,
@@ -62,8 +62,8 @@ class QuizConfidenceService {
   static async separation(attemptId: string) {
     const attempt = await QuizAttempt.findById(attemptId);
     const { top } = await QuizSelectionService.getTopContenders(attempt.trait_scores_raw);
-    if (top.length < 2 || top[0].score === 0) return 0;
     const [first, second] = top;
+    if (!first || !second || first.score === 0) return 0;
     return Math.min(100, ((first.score - second.score) / first.score) * 100);
   }
 

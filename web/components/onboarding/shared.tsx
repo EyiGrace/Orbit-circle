@@ -1,9 +1,7 @@
 "use client";
 
-//import { useEffect, useState } from "react";
 import styled, { keyframes } from "styled-components";
 import Image from "next/image";
-import useResponsive from "@/hooks/useResponsive";
 
 /**
  * Shared building blocks for every "Desktop - Onboarding N" / auth screen.
@@ -23,7 +21,6 @@ export const LogoMark = styled.a`
   z-index: 5;
 `;
 
-
 const Wordmark = styled.span`
   font-weight: 600;
   font-size: 24px;
@@ -37,10 +34,8 @@ const Wordmark = styled.span`
 `;
 
 export function Logo({ href = "/" }: { href?: string }) {
-  const { isDesktop } = useResponsive();
-
   return (
-    <LogoMark href={href} aria-hidden={!isDesktop}>
+    <LogoMark href={href}>
       <Image
         src="/image/Logo.png"
         alt="CareerMap Logo"
@@ -54,7 +49,6 @@ export function Logo({ href = "/" }: { href?: string }) {
     </LogoMark>
   );
 }
-
 
 // ---------- Heading helpers ----------
 
@@ -202,7 +196,6 @@ const DotRow = styled.div`
   display: flex;
   align-items: center;
   gap: 16px;
-  @media (max-width: 900px) {
 `;
 
 const Dot = styled.span<{ $active?: boolean }>`
@@ -229,59 +222,6 @@ export function ProgressDots({ total, activeIndex }: { total: number; activeInde
     </DotRow>
   );
 }
-
-// ---------- Next button (circular, bottom-right of visual) ----------
-
-// const NextButtonEl = styled.button<{ $hasLabel?: boolean }>`
-//   position: absolute;
-//   width: ${({ $hasLabel }) => ($hasLabel ? "auto" : "80px")};
-//   min-width: ${({ $hasLabel }) => ($hasLabel ? "180px" : "80px")};
-//   height: ${({ $hasLabel }) => ($hasLabel ? "56px" : "80px")};
-//   left: ${({ $hasLabel }) => ($hasLabel ? "12.78%" : "auto")};
-//   right: ${({ $hasLabel }) => ($hasLabel ? "auto" : "12.78%")};
-//   bottom: 8.01%; /* 82px / 1024px frame height, from Figma dev mode */
-//   border: none;
-//   border-radius: ${({ $hasLabel }) => ($hasLabel ? "999px" : "50%")};
-//   background: #773bec;
-//   color: #f8fafc;
-//   display: flex;
-//   align-items: center;
-//   justify-content: center;
-//   padding: ${({ $hasLabel }) => ($hasLabel ? "0 24px" : "0")};
-//   font-family: "Inter", sans-serif;
-//   font-weight: 600;
-//   font-size: 16px;
-//   cursor: pointer;
-//   z-index: 6;
-//   transition: background 0.15s ease, transform 0.15s ease;
-
-//   &:hover {
-//     background: #6d28d9;
-//     transform: translateY(-2px);
-//   }
-//   &:active {
-//     transform: translateY(0);
-//   }
-
-//   svg {
-//     width: 28px;
-//     height: 19px;
-//   }
-
-//   @media (max-width: 900px) {
-//     position: fixed;
-//     width: ${({ $hasLabel }) => ($hasLabel ? "calc(100% - 40px)" : "56px")};
-//     height: 56px;
-//     left: ${({ $hasLabel }) => ($hasLabel ? "20px" : "auto")};
-//     right: ${({ $hasLabel }) => ($hasLabel ? "auto" : "20px")};
-//     bottom: 20px;
-
-//     svg {
-//       width: 20px;
-//       height: 14px;
-//     }
-//   }
-// `;
 
 // ---------- Next button (circular, bottom-right of visual) ----------
 
@@ -323,7 +263,7 @@ const NextButtonEl = styled.button<{ $hasLabel?: boolean }>`
 
   @media (max-width: 900px) {
     position: fixed;
-    /* FIX: Force exact width and height match for circular shape on icon-only mode */
+    /* Force exact width and height match for circular shape on icon-only mode */
     width: ${({ $hasLabel }) => ($hasLabel ? "calc(100% - 40px)" : "56px")};
     min-width: ${({ $hasLabel }) => ($hasLabel ? "auto" : "56px")};
     height: 56px;

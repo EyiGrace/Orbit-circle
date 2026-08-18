@@ -3,13 +3,12 @@ import { pool } from '../config/db';
 export interface QuizResponseParams {
   attempt_id: string;
   question_id: number;
-  selected_option_ids?: number[];
-  ranking_order?: number[];
-  scale_value?: number;
-  reflection_text?: string;
-  trait_points_awarded?: Record<string, number>;
-  is_skipped?: boolean;
-  
+  selected_option_ids?: number[] | undefined;
+  ranking_order?: number[] | undefined;
+  scale_value?: number | undefined;
+  reflection_text?: string | undefined;
+  trait_points_awarded?: Record<string, number> | undefined;
+  is_skipped?: boolean | undefined;
 }
 
 class QuizResponse {

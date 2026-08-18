@@ -12,7 +12,12 @@ export const getMentors = async (req: Request, res: Response) => {
 
 export const getMentorById = async (req: Request, res: Response) => {
   try {
-    const mentor = await MentorService.getMentor(req.params.id);
+    const { id } = req.params;
+    if (typeof id !== 'string') {
+      res.status(400).json({ message: 'Invalid mentor ID' });
+      return;
+    }
+    const mentor = await MentorService.getMentor(id);
     res.status(200).json({ mentor });
   } catch (err: any) {
     res.status(404).json({ message: err.message });

@@ -1,10 +1,14 @@
 'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import styled, { keyframes } from "styled-components";
+import { useEffect, useRef, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import styled from "styled-components";
 import colors from "@/lib/colors";
 import { DashboardShell, Card } from "@/components/dashboard";
+import { useStartConversation, useConversationMessages, useMarkRead, ConversationSummary } from "@/hooks/conversation.hook";
+import { useChatSocket, ChatMessage } from "@/hooks/useChatSocket";
+import { getToken } from "@/hooks/auth.hook";
+
 
 const TopHeader = styled.div`
   display: flex;
@@ -50,16 +54,9 @@ const SubStatus = styled.div`
   gap: 8px;
   font-size: 13px;
   color: ${colors.muted};
-
-  span.dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #2ed573;
-  }
+  span.dot { width: 6px; height: 6px; border-radius: 50%; background: #2ed573; }
 `;
 
-/* Span Full Width of Main Container */
 const FullChatContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -76,10 +73,7 @@ const CareerBanner = styled(Card)`
   margin-bottom: 24px;
   width: 100%;
   background: rgba(119, 59, 236, 0.12);
-
-  @media (max-width: 860px) {
-    padding: 14px 18px;
-  }
+  @media (max-width: 860px) { padding: 14px 18px; }
 `;
 
 const BannerText = styled.h3`
@@ -98,11 +92,7 @@ const ViewProfileBtn = styled.button`
   font-size: 14px;
   cursor: pointer;
   transition: all 0.2s ease;
-
-  &:hover {
-    background: rgba(119, 59, 236, 0.4);
-    color: ${colors.normalWhite};
-  }
+  &:hover { background: rgba(119, 59, 236, 0.4); color: ${colors.normalWhite}; }
 `;
 
 const DateDivider = styled.div`
@@ -118,6 +108,7 @@ const MessageList = styled.div`
   gap: 20px;
   width: 100%;
   flex: 1;
+  overflow-y: auto;
 `;
 
 const MessageRow = styled.div<{ $isSender?: boolean }>`
@@ -143,22 +134,17 @@ const BubbleAvatar = styled.div`
 `;
 
 const MessageBubble = styled.div<{ $isSender?: boolean }>`
-  max-width: 480px; /* Capped to match WhatsApp / Figma layout width */
+  max-width: 480px;
   padding: 16px 20px;
-  border-radius: ${(p) =>
-    p.$isSender ? "16px 16px 4px 16px" : "16px 16px 16px 4px"};
-  background: ${(p) =>
-    p.$isSender ? colors.buttonPurple : "rgba(255, 255, 255, 0.08)"};
+  border-radius: ${(p) => (p.$isSender ? "16px 16px 4px 16px" : "16px 16px 16px 4px")};
+  background: ${(p) => (p.$isSender ? colors.buttonPurple : "rgba(255, 255, 255, 0.08)")};
   color: ${colors.normalWhite};
   font-size: 14px;
   line-height: 1.6;
-
-  @media (max-width: 860px) {
-    max-width: 82%;
-  }
+  @media (max-width: 860px) { max-width: 82%; }
 `;
 
-const TimeMeta = styled.div<{ $isSender?: boolean }>`
+const TimeMeta = styled.div`
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -168,136 +154,208 @@ const TimeMeta = styled.div<{ $isSender?: boolean }>`
   margin-top: 6px;
 `;
 
-/* Typing Indicator Styling */
-const TypingBubble = styled(MessageBubble)`
+const InputBar = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
-  background: rgba(255, 255, 255, 0.08);
-  padding: 14px 20px;
-  color: ${colors.muted};
-  font-size: 13px;
-`;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 10px 16px;
+  border-radius: 16px;
+  margin-top: 16px;
 
-const pulse = keyframes`
-  0%, 100% { opacity: 0.3; transform: scale(0.8); }
-  50% { opacity: 1; transform: scale(1.2); }
-`;
-
-const DotGroup = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 4px;
-
-  span {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: ${colors.buttonPurple};
-    animation: ${pulse} 1.4s infinite ease-in-out;
-
-    &:nth-child(2) {
-      animation-delay: 0.2s;
-    }
-    &:nth-child(3) {
-      animation-delay: 0.4s;
-    }
+  input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: ${colors.normalWhite};
+    outline: none;
+    font-size: 14px;
   }
 `;
 
+const SendBtn = styled.button`
+  background: transparent;
+  border: none;
+  color: ${colors.buttonPurple};
+  cursor: pointer;
+  &:disabled { opacity: 0.4; cursor: not-allowed; }
+`;
+
+function getInitials(name: string): string {
+  return name.split(" ").filter(Boolean).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
+}
+
+function formatTime(iso: string) {
+  return new Date(iso).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+}
+
 export default function MentorChatPage() {
   const router = useRouter();
+  const params = useParams();
+  const mentorId = params.id as string;
 
-  const [messages] = useState([
-    {
-      id: 1,
-      sender: "user",
-      text: "Hi Paul, I just took the career quiz and found out my strength leans towards Software Engineering. I'm really interested in becoming a Software Engineer and would love to learn from your experience",
-      time: "10:09 AM",
-    },
-    {
-      id: 2,
-      sender: "mentor",
-      text: "Hi David, I'm happy to help. What would you like to know?",
-      time: "10:15 AM",
-    },
-    {
-      id: 3,
-      sender: "user",
-      text: "What skills do you think are most important for someone just starting out in software engineering",
-      time: "10:16 AM",
-    },
-  ]);
+  const startConversation = useStartConversation();
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [mentorInfo, setMentorInfo] = useState<{
+    name: string;
+    headline: string | null;
+    photoUrl: string | null;
+    careerTitle: string | null;
+    mentorUserId: string | null;
+  } | null>(null);
+
+  const { data: historyData } = useConversationMessages(conversationId);
+  const markRead = useMarkRead();
+  const socket = useChatSocket();
+
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [draft, setDraft] = useState("");
+  const listRef = useRef<HTMLDivElement>(null);
+
+  // resolve (or create) the conversation for this mentor on mount
+  useEffect(() => {
+    startConversation.mutate(
+      { mentorId },
+      {
+        onSuccess: (data) => {
+          console.log('🔍 Full API response:', data);
+          const c = data.conversation as ConversationSummary;
+          setConversationId(c.id);
+          setMentorInfo({
+            name: c.mentor_name || 'Paul Dirisu',
+            headline: c.mentor_headline || 'mentor',
+            photoUrl: c.mentor_photo_url || '/image/Logo.png',
+            careerTitle: c.career_title,
+            mentorUserId: c.mentor_user_id
+          });
+        },
+      onError: (error) => {
+      console.error('Conversation API error:', error);
+    }
+      }
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mentorId]);
+
+  // seed history once fetched
+  useEffect(() => {
+    if (historyData?.messages) setMessages(historyData.messages);
+  }, [historyData]);
+
+  // join the socket room and listen for live messages
+  useEffect(() => {
+    if (!conversationId) return;
+    socket.joinConversation(conversationId);
+    const unsubscribe = socket.onNewMessage((msg) => {
+      if (msg.conversation_id === conversationId) {
+        setMessages((prev) => [...prev, msg]);
+      }
+    });
+    markRead.mutate(conversationId);
+    return () => {
+      socket.leaveConversation(conversationId);
+      unsubscribe();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conversationId]);
+
+  useEffect(() => {
+    listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
+  }, [messages]);
+
+  const myUserId = (() => {
+    const token = getToken();
+    if (!token) return null;
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      return payload.id as string;
+    } catch {
+      return null;
+    }
+  })();
+
+  const handleSend = () => {
+    if (!conversationId || !draft.trim()) return;
+     console.log('🔵 Attempting to send message to:', conversationId, 'Content:', draft.trim());
+    socket.sendMessage(conversationId, draft.trim());
+    setDraft("");
+  };
+
+  if (!mentorInfo) {
+    return (
+      <DashboardShell heading={<Name>Loading chat...</Name>}>
+        <div />
+      </DashboardShell>
+    );
+  }
+
+  const initials = getInitials(mentorInfo.name);
+  const isOnline = socket.isOnline(mentorInfo.mentorUserId);
 
   return (
     <DashboardShell
       heading={
         <TopHeader>
           <MentorInfo>
-            <ChatAvatar>PD</ChatAvatar>
+            <ChatAvatar>{initials}</ChatAvatar>
             <HeaderText>
-              <Name>Paul Dirisu</Name>
+              <Name>{mentorInfo.name}</Name>
               <SubStatus>
-                <span>Senior Software Engineer</span>
-                <span className="dot" />
-                <span style={{ color: "#2ed573" }}>Online</span>
+                <span>{mentorInfo.headline}</span>
+                {isOnline && (
+                  <>
+                    <span className="dot" />
+                    <span style={{ color: "#2ed573" }}>Online</span>
+                  </>
+                )}
               </SubStatus>
             </HeaderText>
           </MentorInfo>
         </TopHeader>
       }
-      topRight={<div />} /* Clears default top profile avatar */
+      topRight={<div />}
     >
       <FullChatContainer>
-        <CareerBanner>
-          <BannerText>Software Engineering</BannerText>
-          <ViewProfileBtn onClick={() => router.push("/mentor-profile")}>
-            View profile
-          </ViewProfileBtn>
-        </CareerBanner>
+        {mentorInfo.careerTitle && (
+          <CareerBanner>
+            <BannerText>{mentorInfo.careerTitle}</BannerText>
+            <ViewProfileBtn onClick={() => router.push(`/mentor/${mentorId}`)}>View profile</ViewProfileBtn>
+          </CareerBanner>
+        )}
 
         <DateDivider>Today</DateDivider>
 
-        <MessageList>
+        <MessageList ref={listRef}>
           {messages.map((msg) => {
-            const isUser = msg.sender === "user";
+            const isMe = msg.sender_id === myUserId;
             return (
-              <MessageRow key={msg.id} $isSender={isUser}>
-                {!isUser && <BubbleAvatar>PD</BubbleAvatar>}
-                <MessageBubble $isSender={isUser}>
-                  {msg.text}
-                  <TimeMeta $isSender={isUser}>
-                    <span>{msg.time}</span>
-                    {isUser && (
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                        <path
-                          d="M18 6L7 17l-5-5m17-2l-7 7"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    )}
+              <MessageRow key={msg.id} $isSender={isMe}>
+                {!isMe && <BubbleAvatar>{initials}</BubbleAvatar>}
+                <MessageBubble $isSender={isMe}>
+                  {msg.body}
+                  <TimeMeta>
+                    <span>{formatTime(msg.created_at)}</span>
                   </TimeMeta>
                 </MessageBubble>
               </MessageRow>
             );
           })}
-
-          {/* Typing Indicator */}
-          <MessageRow $isSender={false}>
-            <BubbleAvatar>PD</BubbleAvatar>
-            <TypingBubble $isSender={false}>
-              <span>Paul is typing...</span>
-              <DotGroup>
-                <span />
-                <span />
-                <span />
-              </DotGroup>
-            </TypingBubble>
-          </MessageRow>
         </MessageList>
+
+        <InputBar>
+          <input
+            placeholder="Type a message..."
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSend()}
+          />
+          <SendBtn onClick={handleSend} disabled={!draft.trim()}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+            </svg>
+          </SendBtn>
+        </InputBar>
       </FullChatContainer>
     </DashboardShell>
   );

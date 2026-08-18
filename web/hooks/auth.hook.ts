@@ -27,14 +27,13 @@ function deleteCookie(name: string) {
   document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;SameSite=Lax`;
 }
 
-function setToken(token: string) {
+export function setToken(token: string) {
   if (typeof window === 'undefined') return;
   localStorage.setItem(TOKEN_KEY, token);
-  // Also set cookie for middleware to read
   setCookie(COOKIE_KEY, token);
 }
 
-function clearToken() {
+export function clearToken() {
   if (typeof window === 'undefined') return;
   localStorage.removeItem(TOKEN_KEY);
   deleteCookie(COOKIE_KEY);

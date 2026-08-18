@@ -81,7 +81,7 @@ class QuizResultsService {
     const careersById = new Map(careers.map((c: any) => [c.id, c]));
     return careerIds.map((id, i) => ({
       ...careersById.get(id),
-      matchPercent: Math.round(matchPercents[i])
+      matchPercent: Math.round(matchPercents[i] ?? 0)
     }));
   }
 }
