@@ -1,13 +1,13 @@
-//web/app/home/page.tsx
 'use client';
+
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import styled from "styled-components";
-//import Image from "next/image";
 import colors from "@/lib/colors";
 import { useSavedCareers } from "@/hooks/savedCareer.hook";
 import { useSavedMentors } from "@/hooks/savedMentor.hook";
 import { useStartQuiz } from "@/hooks/quiz.hook";
+import { useConversations } from "@/hooks/conversation.hook";
 import {
   DashboardShell,
   Card,
@@ -16,7 +16,6 @@ import {
   ArrowIcon,
   useDashboardUser,
 } from "@/components/dashboard";
-
 
 const Eyebrow = styled.p`
   margin: 0;
@@ -37,8 +36,6 @@ const Title = styled.h1`
     font-size: 24px;
   }
 `;
-
-
 
 const Grid = styled.div`
   display: grid;
@@ -448,22 +445,33 @@ const EmptyQuote = styled.blockquote`
   line-height: 30px;
 `;
 
+const LoadingContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  width: 100%;
+`;
+
 function HomeDashboard() {
   const { userName } = useDashboardUser();
   const router = useRouter();
 
-  const { data: savedCareersData } = useSavedCareers();
+  const { data: savedCareersData, isLoading: isSavedCareersLoading } = useSavedCareers();
   const { data: savedMentorsData } = useSavedMentors();
+  const { data: conversationsData } = useConversations();
 
   const savedCareers = savedCareersData?.careers ?? [];
   const savedMentors = savedMentorsData?.mentors ?? [];
+  const conversations = conversationsData?.conversations ?? [];
 
   const hasSavedCareers = savedCareers.length > 0;
   const hasSavedMentors = savedMentors.length > 0;
+  const hasStartedConversation = conversations.length > 0;
 
   const [quizProgress, setQuizProgress] = useState(0);
   const [isQuizCompleted, setIsQuizCompleted] = useState(false);
-  const [hasStarted, setHasStarted] = useState<boolean | null>(null); // null = loading
+  const [hasStarted, setHasStarted] = useState<boolean | null>(null);
   const startQuiz = useStartQuiz();
 
   useEffect(() => {
@@ -482,26 +490,41 @@ function HomeDashboard() {
       },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [hasSavedCareers]);
 
   const steps = [
     { label: "Career Assessment", done: isQuizCompleted || hasSavedCareers },
     { label: "Explore Careers", done: hasSavedCareers },
     { label: "Connect to Mentor", done: hasSavedMentors },
-    { label: "Send A mentor request", done: false },
+    { label: "Send A mentor request", done: hasStartedConversation },
   ];
 
   const completedCount = steps.filter((s) => s.done).length;
   const overallProgressPercent = Math.round((completedCount / steps.length) * 100);
 
+  // ─── Loading state ─────────────────────────────────────────────────────────
+  const isCheckingState = hasStarted === null || isSavedCareersLoading || startQuiz.isPending;
+
+  if (isCheckingState) {
+    return (
+      <DashboardShell>
+        <LoadingContainer>
+          <Muted style={{ fontSize: 18 }}>Loading your dashboard...</Muted>
+        </LoadingContainer>
+      </DashboardShell>
+    );
+  }
+
   // ─── Empty / onboarding state ────────────────────────────────────────────────
-  if (hasStarted === false) {
+  const NotStarted = !hasStarted && !isQuizCompleted && !hasSavedCareers;
+
+  if (NotStarted) {
     return (
       <DashboardShell
         heading={
           <>
             <EmptyGreeting>
-              Good afternoon, <Accent>{userName}</Accent> 👋
+              Welcome, <Accent>{userName}</Accent> 👋
             </EmptyGreeting>
             <Muted style={{ marginTop: 8, fontSize: 20 }}>
               Let&rsquo;s map your future
@@ -548,6 +571,7 @@ function HomeDashboard() {
     );
   }
 
+  // ─── Active Dashboard state ──────────────────────────────────────────────────
   return (
     <DashboardShell
       heading={
@@ -562,7 +586,6 @@ function HomeDashboard() {
         </>
       }
     >
-
       <Grid>
         <div>
           <SectionHead>Continue where you left off</SectionHead>
@@ -686,7 +709,6 @@ function HomeDashboard() {
           </Muted>
         </SideCard>
       </Grid>
-
     </DashboardShell>
   );
 }

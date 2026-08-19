@@ -150,7 +150,8 @@ function MentorContent() {
     return (
       <DashboardShell heading={<Title>Mentors</Title>}>
         <Muted style={{ marginTop: 32 }}>
-          Mentors are shown per career. Open a career and tap &quot;Find a Mentor&quot; to see mentors linked to it.
+         Your mentor journey starts here
+Complete the career quiz and save a career to unlock mentors in your chosen field.
         </Muted>
       </DashboardShell>
     );

@@ -1,13 +1,12 @@
 'use client';
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import  { useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import colors from "@/lib/colors";
-import { useConversations, useConversationMessages, useMarkRead, useSetArchived, ConversationSummary } from "@/hooks/conversation.hook";
+import { useConversations, useConversationMessages, useMarkRead, useSetArchived } from "@/hooks/conversation.hook";
 import { useChatSocket, ChatMessage } from "@/hooks/useChatSocket";
 import { useRouter } from "next/navigation";
-import { getToken, useGetMe } from "@/hooks/auth.hook";
-import { useLogout } from "@/hooks/auth.hook"
+import { getToken, useGetMe, useLogout } from "@/hooks/auth.hook";
 import { LogoutButton } from "@/components/dashboard";
 
 const Layout = styled.div`
@@ -56,6 +55,12 @@ const BadgeCount = styled.span`
   border-radius: 10px;
 `;
 
+const SidebarFooter = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+`;
+
 const UserProfile = styled.div`
   display: flex;
   align-items: center;
@@ -80,6 +85,9 @@ const Main = styled.main`
   padding: 24px 32px;
   display: flex;
   flex-direction: column;
+  @media (max-width: 600px) {
+    padding: 16px;
+  }
 `;
 
 const Header = styled.header`
@@ -87,11 +95,31 @@ const Header = styled.header`
   align-items: center;
   justify-content: space-between;
   margin-bottom: 24px;
+  gap: 16px;
+  flex-wrap: wrap;
+`;
+
+const HeaderActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+
+const MobileLogoutBtn = styled(LogoutButton)`
+  display: none;
+  @media (max-width: 900px) {
+    display: flex;
+    padding: 8px 16px;
+    font-size: 13px;
+  }
 `;
 
 const SearchInput = styled.div`
   position: relative;
   width: 320px;
+  @media (max-width: 600px) {
+    width: 100%;
+  }
   input {
     width: 100%;
     padding: 10px 16px 10px 40px;
@@ -111,10 +139,12 @@ const ChatGrid = styled.div`
   gap: 20px;
   flex: 1;
   min-height: 0;
-  @media (max-width: 1024px) { grid-template-columns: 1fr; }
+  @media (max-width: 1024px) { 
+    grid-template-columns: 1fr; 
+  }
 `;
 
-const ConversationsPanel = styled.div`
+const ConversationsPanel = styled.div<{ $showOnMobile: boolean }>`
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 20px;
@@ -122,6 +152,10 @@ const ConversationsPanel = styled.div`
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+
+  @media (max-width: 1024px) {
+    display: ${(p) => (p.$showOnMobile ? "flex" : "none")};
+  }
 `;
 
 const FilterTabs = styled.div`
@@ -196,7 +230,7 @@ const ArchiveBtn = styled.button`
   &:hover { color: #fff; }
 `;
 
-const ActiveChatPanel = styled.div`
+const ActiveChatPanel = styled.div<{ $showOnMobile: boolean }>`
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 20px;
@@ -205,6 +239,10 @@ const ActiveChatPanel = styled.div`
   justify-content: space-between;
   padding: 20px;
   min-height: 0;
+
+  @media (max-width: 1024px) {
+    display: ${(p) => (p.$showOnMobile ? "flex" : "none")};
+  }
 `;
 
 const ChatHeader = styled.div`
@@ -213,6 +251,22 @@ const ChatHeader = styled.div`
   gap: 12px;
   padding-bottom: 16px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+`;
+
+const BackBtn = styled.button`
+  display: none;
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  padding: 4px;
+  margin-right: 4px;
+
+  @media (max-width: 1024px) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 `;
 
 const MessagesArea = styled.div`
@@ -278,6 +332,7 @@ export default function MentorMessagesPage() {
   const router = useRouter();
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [showChatMobile, setShowChatMobile] = useState(false);
   const [filter, setFilter] = useState<FilterType>("all");
   const [search, setSearch] = useState("");
 
@@ -296,10 +351,6 @@ export default function MentorMessagesPage() {
       onSuccess: () => router.push("/login"),
     });
   };
-
-  useEffect(() => {
-    if (conversations.length && !selectedId) setSelectedId(conversations[0].id);
-  }, [conversations, selectedId]);
 
   useEffect(() => {
     if (historyData?.messages) setMessages(historyData.messages);
@@ -351,6 +402,15 @@ export default function MentorMessagesPage() {
 
   const selected = conversations.find((c) => c.id === selectedId);
 
+  const handleSelectConversation = (id: string) => {
+    setSelectedId(id);
+    setShowChatMobile(true);
+  };
+
+  const handleBackToList = () => {
+    setShowChatMobile(false);
+  };
+
   const handleSend = () => {
     if (!selectedId || !draft.trim()) return;
     socket.sendMessage(selectedId, draft.trim());
@@ -367,16 +427,18 @@ export default function MentorMessagesPage() {
               <div>Messages</div>
               <BadgeCount>{unreadCount}</BadgeCount>
             </NavItem>
-            <LogoutButton type="button" onClick={handleLogout}>
-              Logout
-            </LogoutButton>
           </Nav>
         </div>
 
-        <UserProfile>
-          <AvatarCircle>{me ? getInitials(me.full_name) : "--"}</AvatarCircle>
-          <div style={{ fontWeight: 600, fontSize: "14px" }}>{me?.full_name}</div>
-        </UserProfile>
+        <SidebarFooter>
+          <LogoutButton type="button" onClick={handleLogout} style={{ width: "100%" }}>
+            Logout
+          </LogoutButton>
+          <UserProfile>
+            <AvatarCircle>{me ? getInitials(me.full_name) : "--"}</AvatarCircle>
+            <div style={{ fontWeight: 600, fontSize: "14px" }}>{me?.full_name}</div>
+          </UserProfile>
+        </SidebarFooter>
       </Sidebar>
 
       <Main>
@@ -385,17 +447,24 @@ export default function MentorMessagesPage() {
             <h1 style={{ margin: "0 0 4px", fontSize: "24px" }}>Messages</h1>
             <span style={{ color: "#94a3b8", fontSize: "13px" }}>Stay connected and support your mentees</span>
           </div>
-          <SearchInput>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
-            <input placeholder="Search mentees" value={search} onChange={(e) => setSearch(e.target.value)} />
-          </SearchInput>
+
+          <HeaderActions>
+            <SearchInput>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              <input placeholder="Search mentees" value={search} onChange={(e) => setSearch(e.target.value)} />
+            </SearchInput>
+
+            <MobileLogoutBtn type="button" onClick={handleLogout}>
+              Logout
+            </MobileLogoutBtn>
+          </HeaderActions>
         </Header>
 
         <ChatGrid>
-          <ConversationsPanel>
+          <ConversationsPanel $showOnMobile={!showChatMobile}>
             <FilterTabs>
               <Tab $active={filter === "all"} onClick={() => setFilter("all")}>
                 All <BadgeCount>{allCount}</BadgeCount>
@@ -406,29 +475,36 @@ export default function MentorMessagesPage() {
               <Tab $active={filter === "archived"} onClick={() => setFilter("archived")}>Archived</Tab>
             </FilterTabs>
 
-            {filtered.map((item) => (
-              <ConversationItem key={item.id} $selected={item.id === selectedId} onClick={() => setSelectedId(item.id)}>
-                <AvatarCircle style={{ width: 38, height: 38, fontSize: 13 }}>
-                  {getInitials(item.student_name)}
-                </AvatarCircle>
-                <ChatDetails>
-                  <h4>{item.student_name}</h4>
-                  <p>{item.last_message_body || "No messages yet"}</p>
-                </ChatDetails>
-                <Meta>
-                  <span>{formatTime(item.last_message_at)}</span>
-                  {item.unreadCount > 0 && <UnreadBadge>{item.unreadCount}</UnreadBadge>}
-                  <ArchiveBtn
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setArchived.mutate({ conversationId: item.id, archived: !item.archived });
-                    }}
-                  >
-                    {item.archived ? "Unarchive" : "Archive"}
-                  </ArchiveBtn>
-                </Meta>
-              </ConversationItem>
-            ))}
+            {filtered.map((item) => {
+              const isSelected = item.id === selectedId;
+              const lastMessageText = isSelected && messages.length > 0
+                ? messages[messages.length - 1].body
+                : (item.last_message_body || "No messages yet");
+
+              return (
+                <ConversationItem key={item.id} $selected={isSelected} onClick={() => handleSelectConversation(item.id)}>
+                  <AvatarCircle style={{ width: 38, height: 38, fontSize: 13 }}>
+                    {getInitials(item.student_name)}
+                  </AvatarCircle>
+                  <ChatDetails>
+                    <h4>{item.student_name}</h4>
+                    <p>{lastMessageText}</p>
+                  </ChatDetails>
+                  <Meta>
+                    <span>{formatTime(item.last_message_at)}</span>
+                    {item.unreadCount > 0 && <UnreadBadge>{item.unreadCount}</UnreadBadge>}
+                    <ArchiveBtn
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setArchived.mutate({ conversationId: item.id, archived: !item.archived });
+                      }}
+                    >
+                      {item.archived ? "Unarchive" : "Archive"}
+                    </ArchiveBtn>
+                  </Meta>
+                </ConversationItem>
+              );
+            })}
 
             {filtered.length === 0 && (
               <div style={{ padding: 20, color: "#94a3b8", fontSize: 13, textAlign: "center" }}>
@@ -437,10 +513,15 @@ export default function MentorMessagesPage() {
             )}
           </ConversationsPanel>
 
-          <ActiveChatPanel>
+          <ActiveChatPanel $showOnMobile={showChatMobile}>
             {selected ? (
               <>
                 <ChatHeader>
+                  <BackBtn type="button" onClick={handleBackToList} aria-label="Back to conversations">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M19 12H5M12 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </BackBtn>
                   <AvatarCircle>{getInitials(selected.student_name)}</AvatarCircle>
                   <div>
                     <h3 style={{ margin: 0, fontSize: "16px" }}>{selected.student_name}</h3>

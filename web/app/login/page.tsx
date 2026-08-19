@@ -10,7 +10,7 @@ function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient(); // <-- Create the query client
-  const redirectUrl = searchParams.get("redirect") || "/dashboard";
+  const redirectUrl = searchParams.get("redirect") || "/home";
   const loginMutation = useLogin();
   const [error, setError] = useState<string | undefined>();
 
@@ -28,7 +28,7 @@ function LoginContent() {
       window.history.replaceState({}, document.title, window.location.pathname);
 
       // 4. Redirect to the dashboard
-      router.push("/dashboard");
+      router.push("/home");
     }
   }, [searchParams, router, queryClient]);
 
