@@ -2,14 +2,16 @@
 import QuizAttempt from '../models/quiz-attempts.model';
 import Career from '../models/career.model';
 import CareerTraitWeight from '../models/career-trait-weights.model';
+import { rarityMultiplier } from './traitRarityService';
 import { ASSUMED_MAX_POINTS_PER_TRAIT } from './constants';
+import { getConfidenceBand } from '../utils/confidenceBand.util';
 
 class QuizResultsService {
   // Trait Score = Earned Points / Maximum Possible Points * 100 (per spec)
   static normalizeTraitScores(traitScoresRaw: Record<string, number>) {
     const normalized: Record<string, number> = {};
     for (const [traitCode, points] of Object.entries(traitScoresRaw)) {
-      normalized[traitCode] = Math.min(100, (points / ASSUMED_MAX_POINTS_PER_TRAIT) * 100);
+      normalized[traitCode] = Math.max(-100, Math.min(100, (points / ASSUMED_MAX_POINTS_PER_TRAIT) * 100));
     }
     return normalized;
   }
@@ -24,8 +26,8 @@ class QuizResultsService {
       let weightedSum = 0;
       let totalWeight = 0;
       for (const [traitCode, weight] of Object.entries(weights)) {
-        weightedSum += (normalizedTraitScores[traitCode] ?? 0) * weight;
-        totalWeight += weight;
+        weightedSum += (normalizedTraitScores[traitCode] ?? 0) * weight * rarityMultiplier(traitCode);
+        totalWeight += weight * rarityMultiplier(traitCode);
       }
       // weights per career already sum to ~100 (from the cleaned dataset),
       // so dividing by totalWeight keeps the result on a clean 0-100 scale
@@ -50,7 +52,7 @@ class QuizResultsService {
 
     await QuizAttempt.finalize(attemptId, normalizedTraitScores, top3CareerIds);
 
-    return this.hydrateResults(top3CareerIds, top3.map(r => r.matchPercent));
+    return this.hydrateResults(top3CareerIds, top3.map(r => r.matchPercent), attempt.confidence);
   }
 
   // re-fetch results for an attempt that was already finalized, without recomputing
@@ -68,20 +70,23 @@ class QuizResultsService {
       let weightedSum = 0;
       let totalWeight = 0;
       for (const [traitCode, weight] of Object.entries(weights)) {
-        weightedSum += (attempt.trait_scores_normalized?.[traitCode] ?? 0) * weight;
-        totalWeight += weight;
+        weightedSum += (attempt.trait_scores_normalized?.[traitCode] ?? 0) * weight * rarityMultiplier(traitCode);
+        totalWeight += weight * rarityMultiplier(traitCode);
       }
       return totalWeight > 0 ? Math.max(0, Math.min(100, weightedSum / totalWeight)) : 0;
     });
-    return this.hydrateResults(attempt.final_recommended_careers, percents);
+    return this.hydrateResults(attempt.final_recommended_careers, percents, attempt.confidence);
   }
 
-  private static async hydrateResults(careerIds: string[], matchPercents: number[]) {
+  private static async hydrateResults(careerIds: string[], matchPercents: number[], confidence?: number) {
     const careers = await Career.findByIds(careerIds);
     const careersById = new Map(careers.map((c: any) => [c.id, c]));
+    const confidenceBand = confidence !== undefined ? getConfidenceBand(confidence) : undefined;
     return careerIds.map((id, i) => ({
       ...careersById.get(id),
-      matchPercent: Math.round(matchPercents[i] ?? 0)
+      matchPercent: Math.round(matchPercents[i] ?? 0),
+      confidence: confidence !== undefined ? Math.round(confidence) : undefined,
+      confidenceBand
     }));
   }
 }
