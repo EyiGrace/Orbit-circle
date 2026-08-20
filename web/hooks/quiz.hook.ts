@@ -1,3 +1,4 @@
+// hooks/quiz.hook.ts
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { getToken } from './auth.hook';
 
@@ -29,8 +30,6 @@ async function quizFetch(path: string, options: RequestInit = {}) {
   return response.json();
 }
 
-// ---- types ------------------------------------------------------------
-
 export interface QuizOption {
   id: number;
   label: string;
@@ -40,8 +39,14 @@ export interface QuizQuestion {
   id: number;
   question_text: string;
   question_type: 'single_choice' | 'scenario' | 'multiple_choice' | 'ranking' | 'scale' | 'reflection_text';
-  options?: QuizOption[]; // absent for 'scale' and 'reflection_text'
-  max_selections?: number | null; // only set for 'multiple_choice'
+  options?: QuizOption[];
+  max_selections?: number | null;
+  placeholder?: string;
+  maxLength?: number;
+  // Dynamic NLP context fields
+  screen_index?: number;
+  ai_feedback?: string;
+  confidence_score?: number;
 }
 
 export interface QuizResult {
@@ -62,11 +67,6 @@ export interface QuizResult {
   matchPercent: number;
 }
 
-// ---- start / resume -----------------------------------------------------
-// One unified endpoint now: same response shape whether this is a brand-new
-// attempt or resuming an in-progress one. Always call this on mount --
-// the backend figures out which case it is.
-
 export function useStartQuiz() {
   return useMutation({
     mutationFn: (): Promise<{
@@ -76,8 +76,6 @@ export function useStartQuiz() {
   });
 }
 
-// still useful for a lightweight progress/confidence check without
-// re-triggering question selection
 export function useAttemptStatus(attemptId: string | null) {
   return useQuery({
     queryKey: ['quiz-attempt-status', attemptId],
@@ -93,8 +91,6 @@ export function useAttemptStatus(attemptId: string | null) {
   });
 }
 
-// ---- answering ------------------------------------------------------------
-
 interface SubmitAnswerPayload {
   attemptId: string;
   questionId: number;
@@ -105,7 +101,7 @@ interface SubmitAnswerPayload {
 }
 
 type AnswerResponse =
-  | { done: false; nextQuestion: QuizQuestion }
+  | { done: false; nextQuestion: QuizQuestion; aiFeedback?: string; confidenceScore?: number }
   | { done: true; results: QuizResult[] };
 
 export function useSubmitAnswer() {
@@ -133,8 +129,6 @@ export function useSkipQuestion() {
       })
   });
 }
-
-// ---- results ------------------------------------------------------------
 
 export function useQuizResults(attemptId: string | null) {
   return useQuery({

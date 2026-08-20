@@ -16,9 +16,20 @@ export interface QuizAttemptRecord {
   confidence: number | null;
   final_recommended_clusters: number[] | null;
   final_recommended_careers: string[] | null;
+  current_phase: string;
+  nlp_turn_count: number;
+}
+
+export interface UpdateNlpStatePayload {
+  trait_scores_raw: Record<string, number>;
+  nlp_turn_count: number;
+  current_phase: string;
+  confidence?: number;
 }
 
 class QuizAttempt {
+  // Existing static methods (create, findById, updateAfterAnswer, etc.)...
+
   static async create(userId: string) {
     const result = await pool.query(
       `INSERT INTO quiz_attempts (user_id) VALUES ($1) RETURNING *`,
@@ -47,14 +58,27 @@ class QuizAttempt {
     return result.rows[0];
   }
 
-  // Persists which question the user is currently sitting on -- lets a
-  // refresh/lost-connection resume exactly where they left off, without
-  // relying on the frontend to remember anything. Pass null once the quiz
-  // is finalized (nothing left to resume).
   static async setPendingQuestion(id: string, questionId: number | null) {
     const result = await pool.query(
       `UPDATE quiz_attempts SET pending_question_id = $1 WHERE id = $2 RETURNING *`,
       [questionId, id]
+    );
+    return result.rows[0];
+  }
+
+  /**
+   * Updates trait_scores_raw, turn count, and phase state during the NLP Discovery phase.
+   */
+  static async updateNlpState(id: string, payload: UpdateNlpStatePayload) {
+    const { trait_scores_raw, nlp_turn_count, current_phase } = payload;
+    const result = await pool.query(
+      `UPDATE quiz_attempts
+       SET trait_scores_raw = $1,
+           nlp_turn_count = $2,
+           current_phase = $3
+       WHERE id = $4
+       RETURNING *`,
+      [JSON.stringify(trait_scores_raw), nlp_turn_count, current_phase, id]
     );
     return result.rows[0];
   }

@@ -5,12 +5,8 @@ import QuizResultsService from '../services/quiz-result.service';
 //import { HTTP_STATUS } from '../utils/const';
 import QuizQuestion from '../models/quiz-question.model';
 import QuizAnswerOption from '../models/quiz-options.model';
-
-
 import type { Request, Response } from 'express';
-
-
-
+import { NLP_DISCOVERY_PROMPTS } from '../constants/nlpDiscoveryPrompts';
 
 
 function getUserId(req: Request): string {
@@ -53,6 +49,7 @@ async function assertOwnsAttempt(attemptId: string, userId: string) {
   return attempt;
 }
 
+// qiuz start controller
 export const startQuiz = async (req: Request, res: Response) => {
   const userId = getUserId(req);
   const { attempt, question, resumedQuestionId } = await QuizAttemptService.startAttempt(userId);
@@ -96,14 +93,71 @@ export const getAttemptStatus = async (req: Request, res: Response) => {
   }
 };
 
+
+
 export const submitAnswer = async (req: Request, res: Response) => {
   try {
     const attemptId = getParam(req, 'attemptId');
-    await assertOwnsAttempt(attemptId, getUserId(req));
+    const attempt = await assertOwnsAttempt(attemptId, getUserId(req));
 
     const { questionId, selectedOptionIds, rankingOrder, scaleValue, reflectionText } = req.body;
     if (!questionId) {
       return res.status(400).json({ message: 'questionId is required' });
+    }
+
+    if (reflectionText !== undefined || attempt.current_phase === 'nlp_discovery') {
+      const nlpResult = await QuizAttemptService.submitNlpResponse(attemptId, reflectionText, false);
+
+      if (nlpResult.transitioned && nlpResult.nextQuestion) {
+        return res.status(200).json({
+          done: false,
+          phase: nlpResult.phase,
+          // ⚡ DEBUG METRICS
+          debug: {
+            confidenceScore: nlpResult.confidenceScore ?? (nlpResult as any).confidence ?? null,
+            confidenceMet: nlpResult.transitioned,
+            currentTurn: nlpResult.currentTurn,
+            extractedTraits: (nlpResult as any).extractedTraits ?? (nlpResult as any).traits ?? [],
+            attemptPhase: attempt.current_phase
+          },
+          nextQuestion: await hydrateQuestion(nlpResult.nextQuestion)
+        });
+      }
+
+      const nextTurn = nlpResult.currentTurn; // Turn 1 or 2
+      const promptConfig = NLP_DISCOVERY_PROMPTS[nextTurn];
+      if (!promptConfig) {
+        throw new Error('Invalid NLP discovery turn');
+      }
+
+      const fullQuestionText = `${promptConfig.title}\n\n${promptConfig.subtitle}${
+        promptConfig.hint ? `\n\n💡 ${promptConfig.hint}` : ''
+      }`;
+
+      const nextNlpQuestion = {
+        id: 99901 + nextTurn,
+        question_type: "reflection_text",
+        screen_index: promptConfig.screen,
+        question_text: fullQuestionText,
+        placeholder: promptConfig.placeholder,
+        maxLength: promptConfig.maxLength,
+        isCompulsory: promptConfig.isCompulsory
+      };
+
+      return res.status(200).json({
+        done: false,
+        phase: 'nlp_discovery',
+        aiFeedback: nlpResult.feedbackMessage,
+        // ⚡ DEBUG METRICS
+        debug: {
+          confidenceScore: (nlpResult as any).confidenceScore ?? (nlpResult as any).confidence ?? null,
+          confidenceMet: (nlpResult as any).confidenceMet ?? false,
+          currentTurn: nextTurn,
+          extractedTraits: (nlpResult as any).extractedTraits ?? (nlpResult as any).traits ?? [],
+          attemptPhase: attempt.current_phase
+        },
+        nextQuestion: nextNlpQuestion
+      });
     }
 
     const result = await QuizAttemptService.submitAnswer({
@@ -116,12 +170,30 @@ export const submitAnswer = async (req: Request, res: Response) => {
     });
 
     if (result.done) {
-      return res.status(200).json({ done: true, results: result.results });
+      return res.status(200).json({ 
+        done: true, 
+        results: result.results,
+        // ⚡ DEBUG METRICS
+        debug: {
+          confidenceScore: (result as any).confidenceScore ?? null,
+          confidenceMet: true,
+          attemptPhase: attempt.current_phase
+        }
+      });
     }
 
-    res.status(200).json({ done: false, nextQuestion: await hydrateQuestion(result.nextQuestion) });
+    res.status(200).json({ 
+      done: false, 
+      // ⚡ DEBUG METRICS
+      debug: {
+        confidenceScore: (result as any).confidenceScore ?? null,
+        extractedTraits: (result as any).extractedTraits ?? [],
+        attemptPhase: attempt.current_phase
+      },
+      nextQuestion: await hydrateQuestion(result.nextQuestion) 
+    });
   } catch (err: any) {
-    res.status(err.status ?? 200).json({ message: err.message });
+    res.status(err.status ?? 400).json({ message: err.message });
   }
 };
 
@@ -155,5 +227,42 @@ export const getResults = async (req: Request, res: Response) => {
     res.status(200).json({ results });
   } catch (err: any) {
     res.status(err.status ?? 200).json({ message: err.message });
+  }
+
+};
+
+// controllers/quizController.ts
+
+export const submitNlpDiscovery = async (req: Request, res: Response) => {
+  try {
+    const attemptId = getParam(req, 'attemptId');
+    await assertOwnsAttempt(attemptId, getUserId(req));
+
+    const { text, skipped } = req.body;
+
+    // Validate text presence if not explicitly skipping
+    if (!skipped && (!text || typeof text !== 'string' || text.trim().length === 0)) {
+      return res.status(400).json({ message: 'Text input is required unless skipping.' });
+    }
+
+    const result = await QuizAttemptService.submitNlpResponse(attemptId, text, !!skipped);
+
+    if (result.transitioned && result.nextQuestion) {
+      return res.status(200).json({
+        phase: result.phase,
+        transitioned: true,
+        nextQuestion: await hydrateQuestion(result.nextQuestion)
+      });
+    }
+
+    return res.status(200).json({
+      phase: result.phase,
+      transitioned: false,
+      currentTurn: result.currentTurn,
+      feedbackMessage: result.feedbackMessage,
+      extractedTraits: result.extractedTraits
+    });
+  } catch (err: any) {
+    res.status(err.status ?? 500).json({ message: err.message });
   }
 };

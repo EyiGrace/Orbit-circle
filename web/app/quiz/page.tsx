@@ -17,11 +17,8 @@ import {
   useSubmitAnswer,
   useSkipQuestion,
   QuizQuestion as QuizQuestionType,
-  //QuizOption,
 } from "@/hooks/quiz.hook";
 import { MultipleChoiceOptions } from "@/components/MultipleChoiceOptions";
-
-// ---- styling (unchanged from the original mock, minus what's no longer needed) ----
 
 const HeadingRow = styled.div`
   display: flex;
@@ -102,7 +99,11 @@ const Fill = styled.div<{ $p: number }>`
 `;
 
 const Question = styled.h2`
-  margin: 28px 0 0; font-size: 26px; font-weight: 700;
+  margin: 28px 0 0; 
+  font-size: 26px; 
+  font-weight: 700;
+  white-space: pre-line; /* PRESERVES NEWLINES */
+  line-height: 1.2;
   @media (max-width: 860px) { margin: 20px 0 0; font-size: 20px; line-height: 1.35; }
 `;
 
@@ -153,12 +154,21 @@ const ScaleButton = styled.button<{ $selected: boolean }>`
 `;
 
 const TextArea = styled.textarea`
-  width: 100%; min-height: 140px; margin: 36px 0;
+  width: 100%; min-height: 140px; margin: 24px 0 12px;
   padding: 16px 20px; border-radius: 14px;
   background: rgba(119, 59, 236, 0.12);
   border: 1px solid rgba(119,59,236,0.25);
   color: ${colors.normalWhite};
   font-family: inherit; font-size: 16px; resize: vertical;
+  &:focus { outline: none; border-color: ${colors.buttonPurple}; }
+`;
+
+const AiFeedbackBanner = styled.div`
+  margin: 16px 0; padding: 14px 18px; border-radius: 12px;
+  background: rgba(119, 59, 236, 0.2);
+  border: 1px solid ${colors.buttonPurple};
+  color: ${colors.normalWhite};
+  font-size: 14px; line-height: 1.5;
 `;
 
 const Footer = styled.div`
@@ -244,8 +254,6 @@ function Ring({ percent }: { percent: number }) {
   );
 }
 
-// Assumed max question count for the progress ring -- the quiz is adaptive
-// (15-18 questions), so this is a soft estimate, not a hard total.
 const ASSUMED_MAX_QUESTIONS = 18;
 
 interface HistoryEntry {
@@ -261,8 +269,9 @@ function QuizPage() {
   const [questionsAnswered, setQuestionsAnswered] = useState(0);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [viewingHistoryIndex, setViewingHistoryIndex] = useState<number | null>(null);
+  const [latestAiFeedback, setLatestAiFeedback] = useState<string | null>(null);
 
-  // per-question-type answer state
+  // Per-question state
   const [selectedOptionId, setSelectedOptionId] = useState<number | null>(null);
   const [selectedOptionIds, setSelectedOptionIds] = useState<number[]>([]);
   const [rankingOrder, setRankingOrder] = useState<number[]>([]);
@@ -305,7 +314,7 @@ function QuizPage() {
       case "scale":
         return scaleValue ? `${scaleValue}/5` : "";
       case "reflection_text":
-        return reflectionText || "(skipped)";
+        return reflectionText.trim() || "(skipped)";
       default:
         return "";
     }
@@ -324,52 +333,72 @@ function QuizPage() {
       case "scale":
         return scaleValue !== null;
       case "reflection_text":
-        return true; // always optional
+        return reflectionText.trim().length >= 3;
       default:
         return false;
     }
   };
 
   const handleNext = () => {
-    if (!attemptId || !currentQuestion || !canSubmit()) return;
+  if (!attemptId || !currentQuestion || !canSubmit()) return;
 
-    const payload: any = { attemptId, questionId: currentQuestion.id };
-    switch (currentQuestion.question_type) {
-      case "single_choice":
-      case "scenario":
-        payload.selectedOptionIds = [selectedOptionId];
-        break;
-      case "multiple_choice":
-        payload.selectedOptionIds = selectedOptionIds;
-        break;
-      case "ranking":
-        payload.rankingOrder = rankingOrder;
-        break;
-      case "scale":
-        payload.scaleValue = scaleValue;
-        break;
-      case "reflection_text":
-        payload.reflectionText = reflectionText;
-        break;
+  const payload: any = { attemptId, questionId: currentQuestion.id };
+
+  switch (currentQuestion.question_type) {
+    case "single_choice":
+    case "scenario":
+      payload.selectedOptionIds = [selectedOptionId];
+      break;
+    case "multiple_choice":
+      payload.selectedOptionIds = selectedOptionIds;
+      break;
+    case "ranking":
+      payload.rankingOrder = rankingOrder;
+      break;
+    case "scale":
+      payload.scaleValue = scaleValue;
+      break;
+    case "reflection_text":
+      payload.reflectionText = reflectionText;
+      break;
+  }
+
+  const answeredQuestion = currentQuestion;
+  const answerSummary = summarizeAnswer(currentQuestion);
+
+  submitAnswer.mutate(payload, {
+    onSuccess: (data) => {
+      // 🔍 DEBUG LOGS: Inspect backend response after each question
+      console.log("=== SUBMIT ANSWER RESPONSE ===");
+      console.log("Submitted Question ID:", answeredQuestion.id);
+      console.log("Full Server Response:", data);
+      console.log("Extracted Traits / AI Feedback:", data.aiFeedback);
+      console.log("Is Quiz Finished (done):", data.done);
+      console.log("Next Question:", data.nextQuestion);
+      console.log("===============================");
+
+      setHistory((h) => [...h, { question: answeredQuestion, answerSummary }]);
+      setQuestionsAnswered((n) => n + 1);
+      resetAnswerState();
+
+      if (data.done) {
+        router.push(`/analyzing?attemptId=${attemptId}`);
+        return;
+      }
+
+      if ('aiFeedback' in data && data.aiFeedback) {
+        setLatestAiFeedback(data.aiFeedback);
+      } else {
+        setLatestAiFeedback(null);
+      }
+
+      setCurrentQuestion(data.nextQuestion);
+    },
+    onError: (error) => {
+      console.error("❌ Submission Error:", error);
     }
-
-    const answeredQuestion = currentQuestion;
-    const answerSummary = summarizeAnswer(currentQuestion);
-
-    submitAnswer.mutate(payload, {
-      onSuccess: (data) => {
-        setHistory((h) => [...h, { question: answeredQuestion, answerSummary }]);
-        setQuestionsAnswered((n) => n + 1);
-        resetAnswerState();
-
-        if (data.done) {
-          router.push(`/analyzing?attemptId=${attemptId}`);
-          return;
-        }
-        setCurrentQuestion(data.nextQuestion);
-      },
-    });
-  };
+  });
+};
 
   const handleSkip = () => {
     if (!attemptId || !currentQuestion) return;
@@ -388,6 +417,7 @@ function QuizPage() {
             router.push(`/analyzing?attemptId=${attemptId}`);
             return;
           }
+          setLatestAiFeedback(null);
           setCurrentQuestion(data.nextQuestion);
         },
       }
@@ -402,11 +432,6 @@ function QuizPage() {
 
   const percent = Math.min(100, Math.round(((questionsAnswered + 1) / ASSUMED_MAX_QUESTIONS) * 100));
 
-  // NOTE: "Back" is implemented as a read-only history view, not true rewind --
-  // editing a past answer would invalidate every question asked after it,
-  // since the adaptive engine already used that answer to pick what came next.
-  // This was a design assumption made without explicit confirmation -- flag
-  // if a different Back behavior is actually wanted.
   const viewingPast = viewingHistoryIndex !== null;
   const displayedEntry = viewingPast ? history[viewingHistoryIndex!] : null;
   const displayedQuestion = viewingPast ? displayedEntry!.question : currentQuestion;
@@ -460,10 +485,16 @@ function QuizPage() {
             </ReadOnlyBanner>
           )}
 
+          {latestAiFeedback && !viewingPast && (
+            <AiFeedbackBanner>
+              🤖 <strong>AI Analysis:</strong> {latestAiFeedback}
+            </AiFeedbackBanner>
+          )}
+
           <Question>{displayedQuestion.question_text}</Question>
 
           {displayedQuestion.question_type === "single_choice" ||
-            displayedQuestion.question_type === "scenario" ? (
+          displayedQuestion.question_type === "scenario" ? (
             <Options>
               {displayedQuestion.options?.map((opt) => {
                 const selected = viewingPast
@@ -518,19 +549,19 @@ function QuizPage() {
             </ScaleRow>
           )}
 
-          {displayedQuestion.question_type === "reflection_text" && !viewingPast && (
+         {displayedQuestion.question_type === "reflection_text" && (
+          <div>
             <TextArea
-              placeholder="Optional -- share anything else about your interests or goals"
+              placeholder={displayedQuestion.placeholder || "Tell us about yourself..."}
+              maxLength={displayedQuestion.maxLength || 500}
               value={reflectionText}
               onChange={(e) => setReflectionText(e.target.value)}
             />
-          )}
-
-          {(submitAnswer.isError || skipQuestion.isError) && (
-            <ErrorText>
-              {(submitAnswer.error as Error)?.message || (skipQuestion.error as Error)?.message}
-            </ErrorText>
-          )}
+            <div style={{ textAlign: 'right', fontSize: 12, color: colors.muted, marginTop: 4 }}>
+              {reflectionText.length} / {displayedQuestion.maxLength || 500}
+            </div>
+          </div>
+        )}
 
           <Footer>
             <GhostButton
@@ -558,7 +589,7 @@ function QuizPage() {
                   </GhostButton>
                 )}
                 <NextButton onClick={handleNext} disabled={!canSubmit() || submitAnswer.isPending}>
-                  {submitAnswer.isPending ? "Saving..." : "Next →"}
+                  {submitAnswer.isPending ? "Analyzing..." : "Next →"}
                 </NextButton>
               </>
             )}

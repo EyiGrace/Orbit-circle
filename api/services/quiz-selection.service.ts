@@ -168,6 +168,40 @@ class QuizSelectionService {
     const gapPercent = ((first.score - second.score) / first.score) * 100;
     return gapPercent <= VALIDATION_TRIGGER_MAX_GAP;
   }
+
+  static async pickPoolAQuestion(attemptId: string, limitCount: number = 1) {
+    const attempt = await QuizAttempt.findById(attemptId);
+    if (!attempt) throw new Error('Quiz attempt not found');
+
+    // 1. Fetch all Pool A questions
+    const poolAQuestions = await QuizQuestion.findPoolA();
+    
+    // 2. Filter out questions already asked in this attempt
+    const unaskedPoolA = poolAQuestions.filter(q => !attempt.asked_question_ids.includes(q.id));
+    if (unaskedPoolA.length === 0) return null;
+
+    const traitScores = attempt.trait_scores_raw || {};
+
+    // 3. Score candidates: Prioritize questions that measure traits with 0 or low points so far
+    let bestQuestion = unaskedPoolA[0];
+    let lowestTraitScoreSum = Infinity;
+
+    for (const question of unaskedPoolA) {
+      // Find current score for primary and secondary traits of this question
+      const primaryScore = question.primary_trait_code ? (traitScores[question.primary_trait_code] || 0) : 0;
+      const secondaryScore = question.secondary_trait_code ? (traitScores[question.secondary_trait_code] || 0) : 0;
+      
+      const combinedScore = primaryScore + secondaryScore;
+
+      // Question targeting the least measured traits wins
+      if (combinedScore < lowestTraitScoreSum) {
+        lowestTraitScoreSum = combinedScore;
+        bestQuestion = question;
+      }
+    }
+
+    return bestQuestion;
+  }
 }
 
 export default QuizSelectionService;
