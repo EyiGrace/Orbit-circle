@@ -186,6 +186,7 @@ export default function StateView({
           alt={finalTitle}
           fill
           unoptimized
+          loading="eager"
           style={{ objectFit: "contain" }}
         />
       </ImageWrapper>

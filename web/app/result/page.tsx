@@ -120,6 +120,27 @@ const Badge = styled.span<{ $small?: boolean }>`
   }
 `;
 
+const ConfidenceBadge = styled.span<{ $band?: "High" | "Medium" | "Low" }>`
+  padding: 6px 12px;
+  border-radius: 12px;
+  background: ${(p) => {
+    switch (p.$band) {
+      case "High": return "#10b981";
+      case "Medium": return "#f59e0b";
+      case "Low": return "#ef4444";
+      default: return "#6b7280";
+    }
+  }};
+  color: ${colors.normalWhite};
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  @media (max-width: 860px) {
+    padding: 4px 10px;
+    font-size: 12px;
+  }
+`;
+
 const ExpandedContent = styled.div`
   margin-top: 16px;
 `;
@@ -217,6 +238,11 @@ function AccordionResultCard({
         </NameRow>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <Badge $small={!expanded}>{result.matchPercent}% Match</Badge>
+          {result.confidenceBand && (
+            <ConfidenceBadge $band={result.confidenceBand}>
+              Confidence: {result.confidenceBand}
+            </ConfidenceBadge>
+          )}
           <Chevron $expanded={expanded}>▾</Chevron>
         </div>
       </HeaderRow>
