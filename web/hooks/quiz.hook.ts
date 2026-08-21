@@ -65,6 +65,8 @@ export interface QuizResult {
   salary_intl_currency: string;
   created_at: string;
   matchPercent: number;
+  confidence?: number;
+  confidenceBand?: "High" | "Medium" | "Low";
 }
 
 export function useStartQuiz() {

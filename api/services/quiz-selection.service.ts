@@ -13,6 +13,7 @@ import {
   VALIDATION_TRIGGER_MIN_QUESTIONS,
   VALIDATION_TRIGGER_MAX_GAP
 } from './constants';
+import { rarityMultiplier } from './traitRarityService';
 
 class QuizSelectionService {
   // ---- shared helpers ----
@@ -25,7 +26,10 @@ class QuizSelectionService {
     for (const [careerId, weights] of Object.entries(matrix)) {
       let score = 0;
       for (const [traitCode, weight] of Object.entries(weights)) {
-        score += (traitScoresRaw[traitCode] ?? 0) * weight;
+        score +=
+  (traitScoresRaw[traitCode] ?? 0) *
+  weight *
+  rarityMultiplier(traitCode);
       }
       scores.push({ careerId, score });
     }
