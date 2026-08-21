@@ -1,6 +1,5 @@
 // services/quiz/quizAttemptService.ts
 import QuizAttempt from '../models/quiz-attempts.model';
-//import QuizQuestion from '../models/quiz-question.model';
 import QuizScoringService, { SubmitAnswerInput } from './quiz-scoring.service';
 import QuizSelectionService from './quiz-selection.service';
 import QuizConfidenceService from './quiz-confidence.service';
@@ -9,58 +8,46 @@ import { QuizNlpService } from './quizNlpService';
 import { calculateRequiredPoolAQuestions } from '../utils/quizConfidence.util';
 import { NLP_DISCOVERY_PROMPTS } from '../constants/nlpDiscoveryPrompts';
 
-
-
-//Quiz Start service
 class QuizAttemptService {
-  // Now returns a single question, same shape as every other step --
-  // no more bulk-returning all of Pool A. pickNextQuestion() (fixed in
-  // quizSelectionService.ts) knows to walk through Pool A first, then
-  // fall through to adaptive selection once it's exhausted. This means
-  // starting a brand-new attempt and resuming an in-progress one now go
-  // through the exact same code path.
-  // services/quiz/quizAttemptService.ts
 
-static async startAttempt(userId: string) {
-  const attempt = await QuizAttempt.findInProgressForUser(userId) ?? (await QuizAttempt.create(userId));
+  static async startAttempt(userId: string) {
+    const attempt = await QuizAttempt.findInProgressForUser(userId) ?? (await QuizAttempt.create(userId));
 
-  const currentTurn = attempt.nlp_turn_count || 0;
-  
-  if (attempt.current_phase === 'nlp_discovery' || currentTurn < 3) {
-    const promptConfig = NLP_DISCOVERY_PROMPTS[currentTurn];
-    if (!promptConfig) {
-      throw new Error(`Invalid NLP discovery turn: ${currentTurn}`);
+    const currentTurn = attempt.nlp_turn_count || 0;
+    
+    if (attempt.current_phase === 'nlp_discovery' || currentTurn < 3) {
+      const promptConfig = NLP_DISCOVERY_PROMPTS[currentTurn];
+      if (!promptConfig) {
+        throw new Error(`Invalid NLP discovery turn: ${currentTurn}`);
+      }
+
+      const fullQuestionText = `${promptConfig.title}\n\n${promptConfig.subtitle}${
+        promptConfig.hint ? `\n\n💡 ${promptConfig.hint}` : ''
+      }`;
+
+      const nlpQuestion = {
+        id: 99901 + currentTurn,
+        question_type: "reflection_text",
+        screen_index: promptConfig.screen,
+        question_text: fullQuestionText,
+        placeholder: promptConfig.placeholder,
+        maxLength: promptConfig.maxLength,
+        isCompulsory: promptConfig.isCompulsory
+      };
+
+      return { attempt, question: nlpQuestion, resumedQuestionId: null };
     }
 
-    // Combine title, subtitle, and hint into a single formatted string
-    const fullQuestionText = `${promptConfig.title}\n\n${promptConfig.subtitle}${
-      promptConfig.hint ? `\n\n💡 ${promptConfig.hint}` : ''
-    }`;
+    if (attempt.pending_question_id) {
+      return { attempt, question: null, resumedQuestionId: attempt.pending_question_id };
+    }
 
-    const nlpQuestion = {
-      id: 99901 + currentTurn,
-      question_type: "reflection_text",
-      screen_index: promptConfig.screen,
-      question_text: fullQuestionText,
-      placeholder: promptConfig.placeholder,
-      maxLength: promptConfig.maxLength,
-      isCompulsory: promptConfig.isCompulsory
-    };
-
-    return { attempt, question: nlpQuestion, resumedQuestionId: null };
+    const question = await QuizSelectionService.pickNextQuestion(attempt.id);
+    if (question) {
+      await QuizAttempt.setPendingQuestion(attempt.id, question.id);
+    }
+    return { attempt, question, resumedQuestionId: null };
   }
-
-  // Resuming structured question phase
-  if (attempt.pending_question_id) {
-    return { attempt, question: null, resumedQuestionId: attempt.pending_question_id };
-  }
-
-  const question = await QuizSelectionService.pickNextQuestion(attempt.id);
-  if (question) {
-    await QuizAttempt.setPendingQuestion(attempt.id, question.id);
-  }
-  return { attempt, question, resumedQuestionId: null };
-}
 
   static async submitAnswer(input: SubmitAnswerInput) {
     await QuizScoringService.submitAnswer(input);
@@ -72,13 +59,10 @@ static async startAttempt(userId: string) {
     return this.afterScoringUpdate(attemptId);
   }
 
-  // shared "what happens after any trait_scores_raw update" logic --
-  // used by both a real answer and a skip
   private static async afterScoringUpdate(attemptId: string) {
     const shouldStop = await QuizConfidenceService.shouldStopQuiz(attemptId);
     if (shouldStop) {
       const results = await QuizResultsService.finalizeResults(attemptId);
-      // finalize() already clears pending_question_id -- nothing left to resume
       return { done: true, results };
     }
 
@@ -108,7 +92,6 @@ static async startAttempt(userId: string) {
     let extractedTraits: Array<{ trait: string; intensity: number }> = [];
     let confidenceScore = attempt.confidence || 0;
 
-    // Process input if submitted
     if (!skipped && userText && userText.trim().length > 0) {
       const nlpResult = await QuizNlpService.processFreeText(userText, currentTurn);
       
@@ -119,60 +102,46 @@ static async startAttempt(userId: string) {
       feedbackMessage = nlpResult.feedback_message;
       extractedTraits = nlpResult.extracted_traits;
       
-      // Calculate true running average across turn count
-      const turnScore = nlpResult.confidence_score || 0;
-      confidenceScore = currentTurn === 1 
-        ? turnScore 
-        : Math.round(((confidenceScore * (currentTurn - 1)) + turnScore) / currentTurn);
+      const totalTraitIntensity = (Object.values(updatedScores) as number[]).reduce((a, b) => a + b, 0);
+      confidenceScore = Math.min(100, Math.round((totalTraitIntensity / 15) * 100));
     }
 
     const isDiscoveryComplete = currentTurn >= 3;
     const nextPhase = isDiscoveryComplete ? 'structured_questions' : 'nlp_discovery';
 
-    // Persist scores AND updated confidence to DB
     await QuizAttempt.updateNlpState(attemptId, {
       trait_scores_raw: updatedScores,
       nlp_turn_count: currentTurn,
       current_phase: nextPhase,
-      confidence: confidenceScore // ⚡ SAVES CONFIDENCE TO DB
+      confidence: confidenceScore
     });
 
     if (isDiscoveryComplete) {
-      const requiredPoolA = calculateRequiredPoolAQuestions(confidenceScore);
-      
-      let nextQuestion;
-      if (requiredPoolA > 0) {
-        // Fetch question from Pool A to fill context gap
-        nextQuestion = await QuizSelectionService.pickPoolAQuestion(attemptId, requiredPoolA);
-      } else {
-        // High confidence: skip straight to adaptive Pool B
-        nextQuestion = await QuizSelectionService.pickNextQuestion(attemptId);
-      }
+  const nextQuestion = await QuizSelectionService.pickNextQuestion(attemptId);
 
-      if (nextQuestion) {
-        await QuizAttempt.setPendingQuestion(attemptId, nextQuestion.id);
-      }
+  if (nextQuestion) {
+    await QuizAttempt.setPendingQuestion(attemptId, nextQuestion.id);
+  }
 
-      return {
-        phase: 'structured_questions',
-        transitioned: true,
-        currentTurn,
-        confidenceScore, // ⚡ RETURNED HERE
-        extractedTraits,
-        requiredPoolAQuestions: requiredPoolA,
-        nextQuestion
-      };
-    }
+  return {
+    phase: 'structured_questions',
+    transitioned: true,
+    currentTurn,
+    confidenceScore,
+    extractedTraits,
+    nextQuestion
+  };
+}
 
     return {
       phase: 'nlp_discovery',
       transitioned: false,
       currentTurn,
-      confidenceScore, // ⚡ ADDED HERE FOR IN-PROGRESS TURNS
+      confidenceScore,
       feedbackMessage,
       extractedTraits
     };
-}
+  }
 }
 
 export default QuizAttemptService;

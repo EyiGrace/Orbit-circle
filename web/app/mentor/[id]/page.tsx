@@ -214,7 +214,7 @@ export default function MentorProfilePage() {
   // the flat /mentor-chat route rather than silently doing nothing, but
   // submitting an actual request there will fail until that endpoint exists.
   const handleContact = () => {
-    router.push(`/mentor-chat?mentorId=${mentorId}`);
+    router.push(`/mentor-chat/${mentorId}`);
   };
 
   if (isLoading) {
