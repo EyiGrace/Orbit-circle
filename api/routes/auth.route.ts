@@ -34,7 +34,7 @@ const router = express.Router();
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.post('/signup', authController.signup);
+router.post('/signup', limiter, authController.signup);
 
 /**
  * @swagger
@@ -64,7 +64,7 @@ router.post('/signup', authController.signup);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.post('/login', authController.login);
+router.post('/login', limiter, authController.login);
 
 /**
  * @swagger

@@ -93,7 +93,43 @@ class QuizAttemptService {
     let confidenceScore = attempt.confidence || 0;
 
     if (!skipped && userText && userText.trim().length > 0) {
-      const nlpResult = await QuizNlpService.processFreeText(userText, currentTurn);
+      let nlpResult;
+      try {
+        nlpResult = await QuizNlpService.processFreeText(userText, currentTurn);
+      } catch (error: any) {
+        const isRateLimit = error?.status === 429 || error?.message?.includes('429');
+        const isUnavailable = error?.status >= 500 || error?.code === 'ECONNREFUSED';
+
+        if (isRateLimit || isUnavailable) {
+          console.warn("⚠️ Gemini NLP service unavailable. Transitioning attempt directly to structured Pool A questions.");
+
+          // 1. Force the attempt phase to transition into structured questions
+          await QuizAttempt.updateNlpState(attemptId, {
+            trait_scores_raw: updatedScores,
+            current_phase: 'structured_questions',
+            nlp_turn_count: currentTurn
+          });
+
+          // 2. Fetch the first Pool A question using existing selection engine
+          const nextQuestion = await QuizSelectionService.pickPoolAQuestion(attemptId);
+          if (nextQuestion) {
+            await QuizAttempt.setPendingQuestion(attemptId, nextQuestion.id);
+          }
+
+          // 3. Return transition response for the frontend UI
+          return {
+            phase: 'structured_questions',
+            transitioned: true,
+            currentTurn,
+            confidenceScore,
+            extractedTraits: [],
+            feedbackMessage: "Let's move straight into a few structured questions!",
+            nextQuestion
+          };
+        }
+
+        throw error;
+      }
       
       for (const item of nlpResult.extracted_traits) {
         updatedScores[item.trait] = (updatedScores[item.trait] || 0) + item.intensity;
@@ -117,21 +153,21 @@ class QuizAttemptService {
     });
 
     if (isDiscoveryComplete) {
-  const nextQuestion = await QuizSelectionService.pickNextQuestion(attemptId);
+      const nextQuestion = await QuizSelectionService.pickNextQuestion(attemptId);
 
-  if (nextQuestion) {
-    await QuizAttempt.setPendingQuestion(attemptId, nextQuestion.id);
-  }
+      if (nextQuestion) {
+        await QuizAttempt.setPendingQuestion(attemptId, nextQuestion.id);
+      }
 
-  return {
-    phase: 'structured_questions',
-    transitioned: true,
-    currentTurn,
-    confidenceScore,
-    extractedTraits,
-    nextQuestion
-  };
-}
+      return {
+        phase: 'structured_questions',
+        transitioned: true,
+        currentTurn,
+        confidenceScore,
+        extractedTraits,
+        nextQuestion
+      };
+    }
 
     return {
       phase: 'nlp_discovery',
