@@ -674,7 +674,7 @@ function HomeDashboard() {
                   </svg>
                 </BookmarkBadge>
               </TileHead>
-              <TileArt src="/image/compass.png" alt="" loading="lazy" width={512} height={512} />
+              <TileArt src="/image/Compass.png" alt="" loading="lazy" width={512} height={512} />
               <RoundArrow type="button" aria-label="Open saved careers" onClick={() => router.push('/saved')}>
                 <ArrowIcon />
               </RoundArrow>
