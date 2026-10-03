@@ -47,7 +47,7 @@ function LoginContent() {
       onSubmit={handleSubmit}
       onGoogleLogin={() => {
         // Sends the user to the Express backend route we created
-        window.location.href = "http://localhost:3002/auth/google";
+        window.location.href = "http://orbit-circle.vercel.app/auth/google";
       }}
       isSubmitting={loginMutation.isPending}
       error={error}
