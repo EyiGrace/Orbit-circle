@@ -122,14 +122,14 @@ export default function LoginScreen({
             <ArrowRightIcon />
           </SubmitButton>
 
-          <Divider>
+          {/* <Divider>
             <DividerLabel>or Login with</DividerLabel>
           </Divider>
 
           <SocialButton type="button" onClick={onGoogleLogin}>
             <GoogleIcon />
             Google
-          </SocialButton>
+          </SocialButton> */}
 
           <BottomText>
             Don&rsquo;t have an account? <a href={signUpHref}>Create Account</a>
