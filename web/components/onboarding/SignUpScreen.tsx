@@ -148,14 +148,14 @@ export default function SignUpScreen({ onSubmit, onGoogleSignUp, loginHref = "/l
             <ArrowRightIcon />
           </SubmitButton>
 
-          <Divider>
+          {/* <Divider>
             <DividerLabel>or sign up with</DividerLabel>
           </Divider>
 
           <SocialButton type="button" onClick={onGoogleSignUp}>
             <GoogleIcon />
             Google
-          </SocialButton>
+          </SocialButton> */}
 
           <BottomText>
             Already have an account? <a href={loginHref}>Login</a>
